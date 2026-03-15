@@ -1,0 +1,32 @@
+:root {
+  color-scheme: light;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  background: #f6f3ec;
+  color: #172033;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(49, 98, 93, 0.12), transparent 32rem),
+    linear-gradient(180deg, #fbf8f1 0%, #f3efe6 100%);
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+input,
+button {
+  font: inherit;
+}

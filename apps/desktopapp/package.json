@@ -1,0 +1,29 @@
+{
+  "name": "@facet/desktopapp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b tsconfig.json tsconfig.node.json && vite build",
+    "preview": "vite preview",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@facet/config": "workspace:*",
+    "@facet/ui": "workspace:*",
+    "@tauri-apps/api": "^2.10.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0"
+  }
+}
