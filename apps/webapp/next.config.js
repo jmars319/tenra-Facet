@@ -6,7 +6,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@facet/config", "@facet/domain", "@facet/reframing", "@facet/ui"],
+  transpilePackages: [
+    "@facet/api-contracts",
+    "@facet/config",
+    "@facet/domain",
+    "@facet/reframing",
+    "@facet/search-providers",
+    "@facet/ui",
+    "@facet/validation"
+  ],
   turbopack: {
     root: path.join(__dirname, "../..")
   }

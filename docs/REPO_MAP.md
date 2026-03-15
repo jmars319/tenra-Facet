@@ -32,4 +32,5 @@
 
 - `scripts/`: Root shell commands for bootstrap, environment checks, dev entry points, and verification.
 - `docs/`: Working documentation for developers and future contributors.
+- `docs/NEGATIVE_SPEC.md`: Guardrails for what Facet should never turn into.
 - `archive/`: Reserved for retired assets or notes that should stay in repo history without cluttering the active tree.

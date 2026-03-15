@@ -1,14 +1,5 @@
-import type {
-  ReframingPrompt,
-  SearchQuery,
-  SearchResult,
-  SafetyDisposition
-} from "@facet/domain";
-import type {
-  FollowupPrompt,
-  OrientationBlock,
-  ReframingMode
-} from "@facet/reframing";
+import type { SearchQuery, SearchResult, SafetyDisposition } from "@facet/domain";
+import type { OrientationBlock, ReframingMode } from "@facet/reframing";
 
 export interface SearchRequest {
   query: SearchQuery;
@@ -30,8 +21,6 @@ export interface ReframingRequest {
 
 export interface ReframingResponse {
   query: SearchQuery;
-  blocks: OrientationBlock[];
-  followups: FollowupPrompt[];
-  prompts?: ReframingPrompt[];
+  block: OrientationBlock;
   safetyDisposition: SafetyDisposition;
 }

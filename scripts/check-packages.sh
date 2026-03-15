@@ -36,6 +36,7 @@ required_paths=(
   "scripts/verify-all.sh"
   "scripts/doctor.sh"
   "docs/DEVELOPER_GUIDE.md"
+  "docs/NEGATIVE_SPEC.md"
   "docs/REPO_MAP.md"
   "docs/STABILITY_CHECKLIST.md"
   "docs/ARCHITECTURE_NOTES.md"

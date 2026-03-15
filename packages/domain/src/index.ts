@@ -1,6 +1,12 @@
-import type { FacetId, ISO8601Timestamp, URLString } from "@facet/shared-types";
+import type {
+  FacetId,
+  HostnameString,
+  ISO8601Timestamp,
+  URLString
+} from "@facet/shared-types";
 
 export type SafetyDisposition = "allow" | "review" | "redirect" | "refuse";
+export type ResultCommonalityStatus = "unique" | "shared";
 
 export interface SearchQuery {
   id: FacetId;
@@ -9,25 +15,29 @@ export interface SearchQuery {
   locale?: string;
 }
 
-export interface SourceProvenance {
-  sourceId: FacetId;
-  providerKey: string;
-  url: URLString;
-  publisher?: string;
-  retrievedAt: ISO8601Timestamp;
+export interface SearchProviderReference {
+  key: string;
+  label: string;
+}
+
+export interface ResultCommonality {
+  status: ResultCommonalityStatus;
+  providerCount: number;
+}
+
+export interface ResultProvenance {
+  surfacedBy: SearchProviderReference[];
+  commonality: ResultCommonality;
 }
 
 export interface SearchResult {
   id: FacetId;
   title: string;
-  snippet?: string;
   url: URLString;
-  provenance: SourceProvenance;
-}
-
-export interface ReframingPrompt {
-  id: FacetId;
-  mode: "broaden" | "compare" | "challenge" | "contextualize";
-  title: string;
-  prompt: string;
+  hostname: HostnameString;
+  snippet?: string;
+  provider: SearchProviderReference;
+  publishedAt?: ISO8601Timestamp;
+  provenance: ResultProvenance;
+  labels?: string[];
 }

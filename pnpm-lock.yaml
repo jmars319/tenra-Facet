@@ -115,6 +115,9 @@ importers:
 
   apps/webapp:
     dependencies:
+      '@facet/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@facet/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -124,9 +127,15 @@ importers:
       '@facet/reframing':
         specifier: workspace:*
         version: link:../../packages/reframing
+      '@facet/search-providers':
+        specifier: workspace:*
+        version: link:../../packages/search-providers
       '@facet/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@facet/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       next:
         specifier: ^16.1.6
         version: 16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -218,6 +227,9 @@ importers:
       '@facet/domain':
         specifier: workspace:*
         version: link:../domain
+      '@facet/reframing':
+        specifier: workspace:*
+        version: link:../reframing
       zod:
         specifier: ^4.3.6
         version: 4.3.6

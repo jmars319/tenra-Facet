@@ -42,4 +42,6 @@ Useful commands:
 
 What exists today is scaffolding only. Real search aggregation, deduplication, provenance enrichment, reframing behavior, and safety enforcement are intentionally not implemented yet.
 
-See `docs/DEVELOPER_GUIDE.md`, `docs/REPO_MAP.md`, and `docs/ARCHITECTURE_NOTES.md` for the working conventions and extension points.
+The web shell now includes a fixture-backed vertical slice for a few representative scenarios, but it still does not perform live search or live LLM behavior.
+
+See `docs/DEVELOPER_GUIDE.md`, `docs/REPO_MAP.md`, `docs/ARCHITECTURE_NOTES.md`, and `docs/NEGATIVE_SPEC.md` for the working conventions and extension points.
