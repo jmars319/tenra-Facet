@@ -88,3 +88,8 @@ export const reframingResponseSchema = z.object({
   block: orientationBlockSchema,
   safetyDisposition: z.enum(["allow", "review", "redirect", "refuse"])
 });
+
+export const facetSearchResponseSchema = z.object({
+  search: searchResponseSchema,
+  reframing: reframingResponseSchema
+});

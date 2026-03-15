@@ -6,6 +6,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_common.sh"
 required_paths=(
   "apps/webapp/package.json"
   "apps/webapp/next.config.js"
+  "apps/webapp/src/app/api/facet/search/route.ts"
   "apps/desktopapp/package.json"
   "apps/desktopapp/src-tauri/tauri.conf.json"
   "apps/mobileapp/package.json"

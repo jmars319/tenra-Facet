@@ -24,3 +24,8 @@ export interface ReframingResponse {
   block: OrientationBlock;
   safetyDisposition: SafetyDisposition;
 }
+
+export interface FacetSearchResponse {
+  search: SearchResponse;
+  reframing: ReframingResponse;
+}

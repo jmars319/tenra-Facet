@@ -29,6 +29,13 @@ The root scripts check these assumptions directly and fail clearly when somethin
 - Put policy labels, refusal patterns, redirection patterns, and review outcomes in `packages/safety`.
 - Keep privacy-sensitive helpers or data-handling configuration in `packages/privacy`.
 
+## Web seam
+
+- The web shell now calls a server route instead of assembling the Facet response inside the client component.
+- The route lives at `apps/webapp/src/app/api/facet/search/route.ts`.
+- The server orchestration lives at `apps/webapp/src/lib/server/facet-search.ts`.
+- Search and reframing data are still fixture-backed. The seam exists so future live integrations have one place to land.
+
 ## Platform status
 
 - Web is active first and should remain the simplest path for product iteration.

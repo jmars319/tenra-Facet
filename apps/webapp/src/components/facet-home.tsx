@@ -2,15 +2,13 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useState, useTransition } from "react";
+import type { FacetSearchResponse } from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
 import type { SearchResult } from "@facet/domain";
+import type { MockSearchScenarioSummary } from "@facet/search-providers";
 import { colors, radii, spacing } from "@facet/ui";
 
-import type {
-  FacetMockState,
-  MockScenarioSummary
-} from "../lib/mock-facet-flow";
-import { runMockFacetFlow } from "../lib/mock-facet-flow";
+import { fetchFacetSearch } from "../lib/facet-search-client";
 
 const panelStyle: CSSProperties = {
   backgroundColor: colors.panel,
@@ -62,8 +60,8 @@ function surfacedByLine(result: SearchResult): string {
 }
 
 export function FacetHome(props: {
-  initialState: FacetMockState;
-  scenarios: MockScenarioSummary[];
+  initialState: FacetSearchResponse;
+  scenarios: MockSearchScenarioSummary[];
 }) {
   const [input, setInput] = useState(props.initialState.search.query.text);
   const [state, setState] = useState(props.initialState);
@@ -82,7 +80,7 @@ export function FacetHome(props: {
 
     startTransition(async () => {
       try {
-        const nextState = await runMockFacetFlow(trimmedQuery);
+        const nextState = await fetchFacetSearch(trimmedQuery);
         setState(nextState);
       } catch (caughtError) {
         setError(

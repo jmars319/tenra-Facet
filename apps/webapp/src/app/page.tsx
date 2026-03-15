@@ -1,8 +1,13 @@
 import { FacetHome } from "../components/facet-home";
-import { getInitialFacetMockState, mockScenarioSummaries } from "../lib/mock-facet-flow";
+import { buildFacetSearchRequest } from "../lib/facet-search-request";
+import {
+  defaultFacetMockQuery,
+  facetMockScenarioSummaries,
+  runFacetSearch
+} from "../lib/server/facet-search";
 
 export default async function Page() {
-  const initialState = await getInitialFacetMockState();
+  const initialState = await runFacetSearch(buildFacetSearchRequest(defaultFacetMockQuery));
 
-  return <FacetHome initialState={initialState} scenarios={mockScenarioSummaries} />;
+  return <FacetHome initialState={initialState} scenarios={facetMockScenarioSummaries} />;
 }

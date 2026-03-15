@@ -11,6 +11,15 @@ Facet is organized so the product can grow by activating seams instead of reshap
 - Refusal and redirection behavior: server or application layers can depend on `packages/safety` contracts later without hard-coding policy behavior into app shells.
 - Opt-in deeper exploration: future flows for broadening, comparing, challenging, or contextualizing a query should remain optional actions initiated by the user.
 
+## Current server seam
+
+- The web app now has a server-side Facet boundary at `apps/webapp/src/app/api/facet/search/route.ts`.
+- The route delegates orchestration to `apps/webapp/src/lib/server/facet-search.ts`.
+- That server-only module assembles the response from fixture-backed search-provider and reframing packages, validates the request and response, and returns one boring explicit payload.
+- Providers are still mocked.
+- Reframing is still mocked.
+- The point of the seam is to make future live provider and live reframing integration land in one server boundary instead of inside UI components.
+
 ## Structural rules
 
 - Apps stay thin and mostly orchestrate shared packages.
