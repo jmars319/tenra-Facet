@@ -2,7 +2,7 @@
 
 ## Intended seams
 
-Facet is organized so the product can grow by activating seams instead of reshaping the whole repo.
+tenra Facet is organized so the product can grow by activating seams instead of reshaping the whole repo.
 
 - Multi-provider search aggregation: `packages/search-providers` is the future home for provider adapters and normalization.
 - Deduplication and provenance: `packages/domain` and `packages/shared-types` already hold the basic result and provenance shapes that later aggregation work can enrich.
@@ -13,7 +13,7 @@ Facet is organized so the product can grow by activating seams instead of reshap
 
 ## Current server seam
 
-- The web app now has a server-side Facet boundary at `apps/webapp/src/app/api/facet/search/route.ts`.
+- The web app now has a server-side tenra Facet boundary at `apps/webapp/src/app/api/facet/search/route.ts`.
 - The route delegates orchestration to `apps/webapp/src/lib/server/facet-search.ts`.
 - That server-only module assembles the response from fixture-backed search-provider and reframing packages, validates the request and response, and returns one boring explicit payload.
 - Providers are still mocked.

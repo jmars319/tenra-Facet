@@ -16,7 +16,7 @@ export async function fetchFacetSearch(text: string): Promise<FacetSearchRespons
 
   if (!response.ok) {
     throw new Error(
-      typeof payload?.error === "string" ? payload.error : "Facet search could not be completed."
+      typeof payload?.error === "string" ? payload.error : "tenra Facet search could not be completed."
     );
   }
 

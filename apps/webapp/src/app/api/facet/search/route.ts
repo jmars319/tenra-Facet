@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     if (caughtError instanceof ZodError) {
       return NextResponse.json(
         {
-          error: "Invalid Facet search request.",
+          error: "Invalid tenra Facet search request.",
           issues: caughtError.issues.map((issue) => ({
             message: issue.message,
             path: issue.path.join(".")
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        error: "Facet search orchestration failed."
+        error: "tenra Facet search orchestration failed."
       },
       { status: 500 }
     );

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Facet",
+  "productName": "tenra Facet",
   "version": "0.1.0",
-  "identifier": "com.jamarq.facet",
+  "identifier": "co.tenra.facet",
   "build": {
     "beforeDevCommand": "pnpm --filter @facet/desktopapp dev",
     "beforeBuildCommand": "pnpm --filter @facet/desktopapp build",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Facet",
+        "title": "tenra Facet",
         "width": 1200,
         "height": 780,
         "resizable": true

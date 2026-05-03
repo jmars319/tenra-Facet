@@ -2,7 +2,7 @@
 
 ## Product posture
 
-Facet is a search tool that helps people see questions from multiple angles without answering for them. The repo is structured to support that posture without overcommitting to implementation details too early.
+tenra Facet is a search tool that helps people see questions from multiple angles without answering for them. The repo is structured to support that posture without overcommitting to implementation details too early.
 
 ## Daily flow
 
@@ -31,7 +31,7 @@ The root scripts check these assumptions directly and fail clearly when somethin
 
 ## Web seam
 
-- The web shell now calls a server route instead of assembling the Facet response inside the client component.
+- The web shell now calls a server route instead of assembling the tenra Facet response inside the client component.
 - The route lives at `apps/webapp/src/app/api/facet/search/route.ts`.
 - The server orchestration lives at `apps/webapp/src/lib/server/facet-search.ts`.
 - Search and reframing data are still fixture-backed. The seam exists so future live integrations have one place to land.

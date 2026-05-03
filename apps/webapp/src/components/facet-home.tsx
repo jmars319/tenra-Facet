@@ -86,7 +86,7 @@ export function FacetHome(props: {
         setError(
           caughtError instanceof Error
             ? caughtError.message
-            : "The mocked Facet flow could not be loaded."
+            : "The mocked tenra Facet flow could not be loaded."
         );
       }
     });

@@ -1,6 +1,6 @@
-# Facet
+# tenra Facet
 
-Facet is a search tool that helps people see questions from multiple angles without answering for them.
+tenra Facet is a search tool that helps people see questions from multiple angles without answering for them.
 
 This repository is a production-minded pnpm monorepo scaffold. The web app is the active early surface. Desktop and mobile are present as thin shells so future platform work does not require a repo reshape later.
 

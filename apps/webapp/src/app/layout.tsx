@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: APP_NAME,
   description:
-    "Facet is a search tool that helps people see questions from multiple angles without answering for them."
+    "tenra Facet is a search tool that helps people see questions from multiple angles without answering for them."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
