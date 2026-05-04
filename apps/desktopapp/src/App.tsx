@@ -21,12 +21,10 @@ export default function App() {
           width: "100%"
         }}
       >
-        <p className="eyebrow">Future shell</p>
+        <p className="eyebrow">Desktop channel</p>
         <h1>{APP_NAME} desktop</h1>
         <p>
-          This is a minimal desktop operator surface scaffold. Search aggregation, reframing,
-          safety review, and offline workflows can be added later without reworking the repo
-          layout.
+          Desktop is reserved for search aggregation, reframing, safety review, and offline workflows.
         </p>
       </section>
     </main>

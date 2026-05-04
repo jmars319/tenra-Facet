@@ -116,19 +116,18 @@ export function FacetHome(props: {
           gap: `${spacing.lg}px`,
           marginBottom: `${spacing.xl * 1.5}px`
         }}
-      >
-        <span style={pillStyle}>
-          <span>Active shell: web</span>
-          <span>Mock vertical slice</span>
-        </span>
+        >
+          <span style={pillStyle}>
+            <span>Web channel</span>
+            <span>Local preview</span>
+          </span>
         <div style={{ display: "grid", gap: `${spacing.md}px`, maxWidth: "48rem" }}>
           <h1 style={{ fontSize: "clamp(2.6rem, 8vw, 5.25rem)", lineHeight: 0.95, margin: 0 }}>
             {APP_NAME} shows results and perspective without deciding for the user.
           </h1>
           <p style={{ color: colors.muted, fontSize: "1.1rem", lineHeight: 1.7, margin: 0 }}>
-            This slice is fixture-backed only. It demonstrates a canonical normalized result model,
-            explicit provider provenance, and one constrained orientation block without live search
-            or live LLM behavior.
+            This preview shows normalized results, provider provenance, and a constrained orientation
+            block before live search providers are connected.
           </p>
         </div>
       </section>
@@ -162,7 +161,7 @@ export function FacetHome(props: {
               id="query"
               name="query"
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Ask a question to inspect"
+              placeholder="Ask a question to review"
               style={{
                 backgroundColor: "#fffef8",
                 border: `1px solid ${colors.border}`,
@@ -192,7 +191,7 @@ export function FacetHome(props: {
         </form>
 
         <div style={{ display: "grid", gap: `${spacing.sm}px` }}>
-          <div style={{ color: colors.muted, fontSize: "0.95rem" }}>Representative mock scenarios</div>
+          <div style={{ color: colors.muted, fontSize: "0.95rem" }}>Representative scenarios</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: `${spacing.sm}px` }}>
             {props.scenarios.map((scenario) => (
               <button
@@ -212,7 +211,7 @@ export function FacetHome(props: {
           </div>
           <div style={{ color: colors.muted, fontSize: "0.92rem", lineHeight: 1.6 }}>
             {props.scenarios.find((scenario) => scenario.exampleQuery === state.search.query.text)?.note ??
-              "Try one of the scenario buttons to run the mocked slice end to end."}
+              "Choose a scenario to review the full result flow."}
           </div>
         </div>
 
@@ -261,7 +260,7 @@ export function FacetHome(props: {
                 </div>
                 <h3 style={{ fontSize: "1.15rem", margin: 0 }}>{result.title}</h3>
                 <p style={{ color: colors.muted, lineHeight: 1.7, margin: 0 }}>
-                  {result.snippet ?? "No snippet available in this mock fixture."}
+                  {result.snippet ?? "No snippet available for this result."}
                 </p>
                 <div style={{ color: colors.ink, fontSize: "0.92rem" }}>{result.hostname}</div>
                 <div style={{ color: colors.muted, fontSize: "0.85rem", wordBreak: "break-all" }}>
@@ -285,8 +284,8 @@ export function FacetHome(props: {
             ))
           ) : (
             <div style={{ ...panelStyle, color: colors.muted, lineHeight: 1.7, padding: `${spacing.lg}px` }}>
-              No mock result set matches this query yet. Use one of the representative scenarios above
-              to inspect the full slice.
+              No result set matches this query yet. Choose one of the representative scenarios above
+              to review the full result flow.
             </div>
           )}
         </div>

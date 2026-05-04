@@ -9,11 +9,10 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <View style={styles.card}>
-        <Text style={styles.eyebrow}>Future support</Text>
+        <Text style={styles.eyebrow}>Mobile channel</Text>
         <Text style={styles.title}>{APP_NAME} mobile</Text>
         <Text style={styles.body}>
-          This scaffold keeps mobile support ready without activating search, reframing, or account
-          flows yet.
+          Mobile is reserved for lightweight result review, saved perspectives, and quick reframing notes.
         </Text>
       </View>
     </SafeAreaView>

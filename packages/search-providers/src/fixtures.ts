@@ -106,7 +106,7 @@ const mockSearchScenarios: MockSearchScenario[] = [
         title: "Stable event callbacks without broad dependency churn",
         url: "https://signals.mocksignal.dev/react/stable-event-callbacks",
         snippet:
-          "Shows a smaller pattern for reading fresh values inside handlers without pretending every issue is the same stale-closure bug.",
+          "Shows a smaller pattern for reading fresh values inside handlers while keeping separate issues distinct.",
         providerKey: "mock-signal",
         surfacedBy: ["mock-atlas", "mock-signal"],
         publishedAt: "2026-01-20T00:00:00.000Z",
