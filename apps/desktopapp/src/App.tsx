@@ -96,6 +96,31 @@ const toMarkdown = (run: SavedRun) => {
   ].join("\n");
 };
 
+const toDerivePromptMarkdown = (run: SavedRun) => {
+  const block = run.result.reframing.block;
+
+  return [
+    "# Derive Prompt From Facet",
+    "",
+    `Question: ${run.queryText}`,
+    `Locale: ${run.locale || "n/a"}`,
+    `Submitted: ${run.result.search.query.submittedAt}`,
+    "",
+    "## Orientation",
+    "",
+    `${block.heading}`,
+    block.line ?? "",
+    "",
+    "## Questions To Resolve",
+    "",
+    ...block.followups.map((followup) => `- ${followup.prompt}`),
+    "",
+    "## Available Context",
+    "",
+    ...run.result.search.results.map((item) => `- ${item.title} (${item.hostname}): ${item.snippet ?? ""}`),
+  ].join("\n");
+};
+
 export default function App() {
   const [queryText, setQueryText] = useState(scenarios[0]?.exampleQuery ?? "");
   const [locale, setLocale] = useState("en-US");
@@ -149,6 +174,10 @@ export default function App() {
 
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
+  const derivePromptMarkdown = useMemo(
+    () => (activeRun ? toDerivePromptMarkdown(activeRun) : ""),
+    [activeRun],
+  );
 
   const runSearch = async () => {
     if (!queryText.trim()) {
@@ -187,6 +216,16 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(markdown);
       setNotice("Markdown copied.");
+    } catch {
+      setNotice("Clipboard copy failed. Export still works.");
+    }
+  };
+
+  const copyDerivePrompt = async () => {
+    if (!activeRun) return;
+    try {
+      await navigator.clipboard.writeText(derivePromptMarkdown);
+      setNotice("Derive prompt copied.");
     } catch {
       setNotice("Clipboard copy failed. Export still works.");
     }
@@ -341,6 +380,9 @@ export default function App() {
                 <div className="action-row">
                   <button type="button" onClick={copyMarkdown}>
                     Copy Markdown
+                  </button>
+                  <button type="button" onClick={copyDerivePrompt}>
+                    Copy Derive Prompt
                   </button>
                   <button type="button" onClick={exportMarkdown}>
                     Export
