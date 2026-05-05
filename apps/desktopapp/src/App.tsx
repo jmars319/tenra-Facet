@@ -4,7 +4,7 @@ import { APP_NAME } from "@facet/config";
 import type { SearchQuery } from "@facet/domain";
 import { orientWithMockLayer } from "@facet/reframing";
 import { listMockSearchScenarios, searchMockResults } from "@facet/search-providers";
-import { readDesktopStore, writeDesktopStore } from "./lib/desktopStore";
+import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
 
 type SavedRun = {
   id: string;
@@ -112,10 +112,18 @@ export default function App() {
       .then((storedRuns) => {
         if (cancelled) return;
 
-        if (Array.isArray(storedRuns) && storedRuns.length > 0) {
-          setSavedRuns(storedRuns);
-          setActiveId(storedRuns[0]?.id ?? "");
-          setNotice("Desktop store loaded.");
+        const legacyRuns = readLegacyLocalStorage<SavedRun[]>(storageKey);
+        const nextRuns =
+          Array.isArray(storedRuns) && storedRuns.length > 0
+            ? storedRuns
+            : Array.isArray(legacyRuns) && legacyRuns.length > 0
+              ? legacyRuns
+              : null;
+
+        if (nextRuns) {
+          setSavedRuns(nextRuns);
+          setActiveId(nextRuns[0]?.id ?? "");
+          setNotice(storedRuns ? "Desktop store loaded." : "Legacy workbench records migrated.");
         }
 
         setIsStoreReady(true);
