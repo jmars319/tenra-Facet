@@ -12,7 +12,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@facet/api-contracts": "workspace:*",
     "@facet/config": "workspace:*",
+    "@facet/domain": "workspace:*",
+    "@facet/reframing": "workspace:*",
+    "@facet/search-providers": "workspace:*",
     "@facet/ui": "workspace:*",
     "@tauri-apps/api": "^2.11.0",
     "react": "^19.2.4",

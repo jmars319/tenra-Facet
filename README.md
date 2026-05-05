@@ -2,12 +2,13 @@
 
 tenra Facet is a search tool that helps people see questions from multiple angles without answering for them.
 
-This repository is a production-minded pnpm monorepo scaffold. The web app is the active early surface. Desktop and mobile are present as thin shells so future platform work does not require a repo reshape later.
+This repository is a production-minded pnpm monorepo scaffold. The platform order is desktop first, web second, and mobile third. The web app currently has the earliest fixture-backed vertical slice, but new product depth should land in the desktop workflow first.
 
 ## Current status
 
-- Active now: `apps/webapp`
-- Scaffolded and intentionally minimal: `apps/desktopapp`, `apps/mobileapp`
+- Primary target: `apps/desktopapp`
+- Secondary target: `apps/webapp`
+- Third target: `apps/mobileapp`
 - Central packages: `shared-types`, `domain`, `api-contracts`, `validation`, `search-providers`, `reframing`, `safety`, `privacy`, `config`
 - Support packages: `auth`, `ui`
 - Optional placeholders: `optional-realtime`, `optional-geo`
@@ -36,11 +37,11 @@ Useful commands:
 - Apps stay thin and mostly compose shared packages.
 - Shared packages own contracts and reusable logic seams.
 - Search providers, reframing, privacy, and safety are isolated so they can grow without forcing platform-specific branching.
-- Desktop and mobile are scaffolded now, but kept inactive until the product needs them.
+- Desktop should become the main product surface before the web and mobile surfaces grow further.
 
 ## Next steps
 
-What exists today is scaffolding only. Real search aggregation, deduplication, provenance enrichment, reframing behavior, and safety enforcement are intentionally not implemented yet.
+The desktop app now provides a local multi-angle question and reframing workbench using the existing fixture-backed search and orientation packages. Real live search aggregation, deduplication, provenance enrichment, live LLM behavior, and safety enforcement are still future work.
 
 The web shell now includes a fixture-backed vertical slice for a few representative scenarios, but it still does not perform live search or live LLM behavior.
 

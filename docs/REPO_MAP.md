@@ -2,9 +2,9 @@
 
 ## Apps
 
-- `apps/webapp`: Active Next.js shell for the early tenra Facet product surface.
-- `apps/desktopapp`: Minimal Vite + React + Tauri shell for future desktop workflows.
-- `apps/mobileapp`: Minimal Expo + React Native shell for future mobile support.
+- `apps/desktopapp`: Primary Vite + React + Tauri product surface. It now provides a local multi-angle question and reframing workbench with fixture-backed results, orientation prompts, saved history, and Markdown export.
+- `apps/webapp`: Secondary Next.js hosted/API companion surface. It currently has the fixture-backed vertical slice.
+- `apps/mobileapp`: Third-surface Expo + React Native shell for future mobile support.
 
 ## Central packages
 

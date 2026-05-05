@@ -7,15 +7,16 @@ tenra Facet is a search tool that helps people see questions from multiple angle
 ## Daily flow
 
 1. Run `pnpm bootstrap` on a fresh checkout.
-2. Use `pnpm dev:web` for day-to-day product work.
-3. Use `pnpm dev:desktop` or `pnpm dev:mobile` only when touching those shells.
-4. Run `pnpm lint`, `pnpm typecheck`, and the relevant `pnpm verify:*` command before wrapping up a change.
+2. Use `pnpm dev:desktop` for product-surface work.
+3. Use `pnpm dev:web` for the secondary hosted/API companion surface.
+4. Use `pnpm dev:mobile` only when there is a mobile-specific reason.
+5. Run `pnpm lint`, `pnpm typecheck`, and the relevant `pnpm verify:*` command before wrapping up a change.
 
 ## Environment expectations
 
 - Node `>= 22`
 - pnpm `>= 10`
-- Rust and Cargo only when using the desktop shell
+- Rust and Cargo for the primary desktop surface
 
 The root scripts check these assumptions directly and fail clearly when something required is missing.
 
@@ -38,6 +39,6 @@ The root scripts check these assumptions directly and fail clearly when somethin
 
 ## Platform status
 
-- Web is active first and should remain the simplest path for product iteration.
-- Desktop is scaffolded for future operator or power-user workflows.
-- Mobile is scaffolded for future support, but should stay inactive until there is a clear mobile-specific need.
+- Desktop is first and should become the main product workflow.
+- Web is second and should stay useful for hosted/API companion work.
+- Mobile is third and should stay inactive until there is a clear mobile-specific need.

@@ -35,9 +35,21 @@ importers:
 
   apps/desktopapp:
     dependencies:
+      '@facet/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@facet/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@facet/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@facet/reframing':
+        specifier: workspace:*
+        version: link:../../packages/reframing
+      '@facet/search-providers':
+        specifier: workspace:*
+        version: link:../../packages/search-providers
       '@facet/ui':
         specifier: workspace:*
         version: link:../../packages/ui
