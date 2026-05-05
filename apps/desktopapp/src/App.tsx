@@ -4,6 +4,7 @@ import { APP_NAME } from "@facet/config";
 import type { SearchQuery } from "@facet/domain";
 import { orientWithMockLayer } from "@facet/reframing";
 import { listMockSearchScenarios, searchMockResults } from "@facet/search-providers";
+import { readDesktopStore, writeDesktopStore } from "./lib/desktopStore";
 
 type SavedRun = {
   id: string;
@@ -51,16 +52,7 @@ const runLocalFacetSearch = async (text: string, locale: string): Promise<FacetS
 };
 
 const loadSavedRuns = () => {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as SavedRun[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return [];
 };
 
 const formatTime = (iso: string) =>
@@ -111,10 +103,41 @@ export default function App() {
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
+  const [isStoreReady, setIsStoreReady] = useState(false);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(savedRuns));
-  }, [savedRuns]);
+    let cancelled = false;
+
+    readDesktopStore<SavedRun[]>(storageKey)
+      .then((storedRuns) => {
+        if (cancelled) return;
+
+        if (Array.isArray(storedRuns) && storedRuns.length > 0) {
+          setSavedRuns(storedRuns);
+          setActiveId(storedRuns[0]?.id ?? "");
+          setNotice("Desktop store loaded.");
+        }
+
+        setIsStoreReady(true);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setNotice(error instanceof Error ? error.message : "Desktop store unavailable.");
+        setIsStoreReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isStoreReady) return;
+
+    void writeDesktopStore(storageKey, savedRuns).catch((error: unknown) => {
+      setNotice(error instanceof Error ? error.message : "Desktop store write failed.");
+    });
+  }, [isStoreReady, savedRuns]);
 
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
