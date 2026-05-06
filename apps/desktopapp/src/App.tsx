@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
-import type { FacetOrientationPacket, FacetSearchResponse } from "@facet/api-contracts";
+import {
+  buildFacetOrientationPacket,
+  type FacetOrientationPacket,
+  type FacetOrientationPacketConsumer,
+  type FacetSearchResponse,
+} from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
 import type { SearchQuery, SearchResult } from "@facet/domain";
 import { orientWithMockLayer } from "@facet/reframing";
@@ -64,6 +69,19 @@ const createId = () =>
 const nowIso = () => new Date().toISOString();
 
 const todayForFilename = () => new Date().toISOString().slice(0, 10);
+
+const downloadJsonFile = (value: unknown, filename: string) => {
+  const blob = new Blob([JSON.stringify(value, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 const createSearchQuery = (text: string, locale: string): SearchQuery => ({
   id: createId(),
@@ -379,6 +397,16 @@ export default function App() {
     () => (activeRun ? toDerivePromptMarkdown(activeRun) : ""),
     [activeRun],
   );
+  const orientationPacket = useMemo(
+    () =>
+      activeRun
+        ? buildFacetOrientationPacket({
+            response: activeRun.result,
+            recommendedNextApp: "derive",
+          })
+        : null,
+    [activeRun],
+  );
 
   const runSearch = async () => {
     if (!queryText.trim()) {
@@ -485,6 +513,30 @@ export default function App() {
     link.click();
     URL.revokeObjectURL(url);
     setNotice("Markdown export created.");
+  };
+
+  const exportOrientationPacket = (recommendedNextApp: FacetOrientationPacketConsumer = "derive") => {
+    if (!activeRun) return;
+    const packet = buildFacetOrientationPacket({
+      response: activeRun.result,
+      recommendedNextApp,
+    });
+    downloadJsonFile(packet, `facet-orientation-${todayForFilename()}.json`);
+    setNotice(`Orientation packet exported for ${recommendedNextApp}.`);
+  };
+
+  const copyOrientationPacket = async (recommendedNextApp: FacetOrientationPacketConsumer = "derive") => {
+    if (!activeRun) return;
+    const packet = buildFacetOrientationPacket({
+      response: activeRun.result,
+      recommendedNextApp,
+    });
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(packet, null, 2));
+      setNotice(`Orientation packet copied for ${recommendedNextApp}.`);
+    } catch {
+      setNotice("Clipboard copy failed. Export still works.");
+    }
   };
 
   const exportWorkspace = () => {
@@ -781,8 +833,14 @@ export default function App() {
                   <button type="button" onClick={exportMarkdown}>
                     Export
                   </button>
+                  <button type="button" onClick={() => exportOrientationPacket("derive")}>
+                    Export Orientation
+                  </button>
+                  <button type="button" onClick={() => void copyOrientationPacket("assembly")}>
+                    Send Assembly
+                  </button>
                 </div>
-                <pre>{markdown}</pre>
+                <pre>{orientationPacket ? JSON.stringify(orientationPacket, null, 2) : markdown}</pre>
               </section>
             </div>
           </>
