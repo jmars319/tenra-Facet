@@ -2,7 +2,7 @@
 
 ## Apps
 
-- `apps/desktopapp`: Primary Vite + React + Tauri product surface. It now provides a local multi-angle question and reframing workbench with fixture-backed results, orientation prompts, saved history, and Markdown export.
+- `apps/desktopapp`: Primary Vite + React + Tauri product surface. It now provides a local multi-angle question and reframing workbench with saved local corpus documents, built-in scenario starters, orientation prompts, saved history, and Markdown export.
 - `apps/webapp`: Secondary Next.js hosted/API companion surface. It currently has the fixture-backed vertical slice.
 - `apps/mobileapp`: Third-surface Expo + React Native shell for future mobile support.
 

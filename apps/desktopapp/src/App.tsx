@@ -1,10 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FacetSearchResponse } from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
-import type { SearchQuery } from "@facet/domain";
+import type { SearchQuery, SearchResult } from "@facet/domain";
 import { orientWithMockLayer } from "@facet/reframing";
 import { listMockSearchScenarios, searchMockResults } from "@facet/search-providers";
 import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
+
+type LocalCorpusDocument = {
+  id: string;
+  title: string;
+  source: string;
+  sourceUrl: string;
+  body: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
 
 type SavedRun = {
   id: string;
@@ -13,8 +24,28 @@ type SavedRun = {
   result: FacetSearchResponse;
 };
 
-const storageKey = "tenra-facet-desktop-runs:v1";
+const runStorageKey = "tenra-facet-desktop-runs:v1";
+const corpusStorageKey = "tenra-facet-local-corpus:v1";
 const scenarios = listMockSearchScenarios();
+const localCorpusProvider = { key: "local-corpus", label: "Local Corpus" };
+const stopWords = new Set([
+  "about",
+  "after",
+  "before",
+  "from",
+  "have",
+  "into",
+  "that",
+  "the",
+  "this",
+  "what",
+  "when",
+  "where",
+  "which",
+  "with",
+  "would",
+  "your",
+]);
 
 const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -30,17 +61,94 @@ const createSearchQuery = (text: string, locale: string): SearchQuery => ({
   ...(locale.trim() ? { locale: locale.trim() } : {}),
 });
 
-const runLocalFacetSearch = async (text: string, locale: string): Promise<FacetSearchResponse> => {
+const tokenize = (input: string): string[] =>
+  input
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 2 && !stopWords.has(word));
+
+const sourceHostname = (sourceUrl: string): string => {
+  if (!sourceUrl.trim()) return "local corpus";
+
+  try {
+    return new URL(sourceUrl.trim()).hostname;
+  } catch {
+    return "local corpus";
+  }
+};
+
+const sourceUrlForDocument = (document: LocalCorpusDocument): SearchResult["url"] =>
+  (document.sourceUrl.trim() || `facet-local://document/${document.id}`) as SearchResult["url"];
+
+const snippetForDocument = (body: string, words: string[]): string => {
+  const normalizedBody = body.toLowerCase();
+  const firstHit = words
+    .map((word) => normalizedBody.indexOf(word))
+    .filter((index) => index >= 0)
+    .sort((first, second) => first - second)[0];
+  const start = Math.max(0, (firstHit ?? 0) - 70);
+  const snippet = body.slice(start, start + 220).trim();
+
+  return start > 0 ? `...${snippet}` : snippet;
+};
+
+const searchLocalCorpus = (query: SearchQuery, documents: LocalCorpusDocument[]): SearchResult[] => {
+  const words = tokenize(query.text);
+  if (words.length === 0 || documents.length === 0) return [];
+
+  return documents
+    .map((document) => {
+      const title = document.title.toLowerCase();
+      const body = document.body.toLowerCase();
+      const tagText = document.tags.join(" ").toLowerCase();
+      const score = words.reduce((total, word) => {
+        const titleScore = title.includes(word) ? 4 : 0;
+        const tagScore = tagText.includes(word) ? 3 : 0;
+        const bodyScore = body.includes(word) ? 1 : 0;
+
+        return total + titleScore + tagScore + bodyScore;
+      }, 0);
+
+      return { document, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((first, second) => second.score - first.score)
+    .slice(0, 8)
+    .map(({ document, score }) => ({
+      id: `local-corpus-${document.id}`,
+      title: document.title,
+      url: sourceUrlForDocument(document),
+      hostname: sourceHostname(document.sourceUrl),
+      snippet: snippetForDocument(document.body, words),
+      provider: localCorpusProvider,
+      publishedAt: document.updatedAt,
+      provenance: {
+        surfacedBy: [localCorpusProvider],
+        commonality: {
+          status: "unique",
+          providerCount: 1,
+        },
+      },
+      labels: [...document.tags, `${score} local match points`].filter(Boolean),
+    }));
+};
+
+const runLocalFacetSearch = async (
+  text: string,
+  locale: string,
+  localCorpus: LocalCorpusDocument[],
+): Promise<FacetSearchResponse> => {
   const query = createSearchQuery(text, locale);
   const [results, block] = await Promise.all([
     searchMockResults(query, { limit: 8, locale }),
     orientWithMockLayer({ query }),
   ]);
+  const localResults = searchLocalCorpus(query, localCorpus);
 
   return {
     search: {
       query,
-      results,
+      results: [...localResults, ...results].slice(0, 8),
       safetyDisposition: "allow",
     },
     reframing: {
@@ -125,6 +233,12 @@ export default function App() {
   const [queryText, setQueryText] = useState(scenarios[0]?.exampleQuery ?? "");
   const [locale, setLocale] = useState("en-US");
   const [savedRuns, setSavedRuns] = useState<SavedRun[]>(loadSavedRuns);
+  const [localCorpus, setLocalCorpus] = useState<LocalCorpusDocument[]>([]);
+  const [documentTitle, setDocumentTitle] = useState("");
+  const [documentSource, setDocumentSource] = useState("");
+  const [documentSourceUrl, setDocumentSourceUrl] = useState("");
+  const [documentBody, setDocumentBody] = useState("");
+  const [documentTags, setDocumentTags] = useState("");
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
@@ -133,11 +247,15 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
 
-    readDesktopStore<SavedRun[]>(storageKey)
-      .then((storedRuns) => {
+    Promise.all([
+      readDesktopStore<SavedRun[]>(runStorageKey),
+      readDesktopStore<LocalCorpusDocument[]>(corpusStorageKey),
+    ])
+      .then(([storedRuns, storedCorpus]) => {
         if (cancelled) return;
 
-        const legacyRuns = readLegacyLocalStorage<SavedRun[]>(storageKey);
+        const legacyRuns = readLegacyLocalStorage<SavedRun[]>(runStorageKey);
+        const legacyCorpus = readLegacyLocalStorage<LocalCorpusDocument[]>(corpusStorageKey);
         const nextRuns =
           Array.isArray(storedRuns) && storedRuns.length > 0
             ? storedRuns
@@ -148,8 +266,20 @@ export default function App() {
         if (nextRuns) {
           setSavedRuns(nextRuns);
           setActiveId(nextRuns[0]?.id ?? "");
-          setNotice(storedRuns ? "Desktop store loaded." : "Legacy workbench records migrated.");
         }
+
+        const nextCorpus =
+          Array.isArray(storedCorpus) && storedCorpus.length > 0
+            ? storedCorpus
+            : Array.isArray(legacyCorpus) && legacyCorpus.length > 0
+              ? legacyCorpus
+              : [];
+        setLocalCorpus(nextCorpus);
+        setNotice(
+          nextRuns || nextCorpus.length
+            ? "Desktop store loaded."
+            : "Local Facet workbench ready.",
+        );
 
         setIsStoreReady(true);
       })
@@ -167,10 +297,18 @@ export default function App() {
   useEffect(() => {
     if (!isStoreReady) return;
 
-    void writeDesktopStore(storageKey, savedRuns).catch((error: unknown) => {
+    void writeDesktopStore(runStorageKey, savedRuns).catch((error: unknown) => {
       setNotice(error instanceof Error ? error.message : "Desktop store write failed.");
     });
   }, [isStoreReady, savedRuns]);
+
+  useEffect(() => {
+    if (!isStoreReady) return;
+
+    void writeDesktopStore(corpusStorageKey, localCorpus).catch((error: unknown) => {
+      setNotice(error instanceof Error ? error.message : "Local corpus write failed.");
+    });
+  }, [isStoreReady, localCorpus]);
 
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
@@ -189,7 +327,7 @@ export default function App() {
     setNotice("Preparing local orientation...");
 
     try {
-      const result = await runLocalFacetSearch(queryText, locale);
+      const result = await runLocalFacetSearch(queryText, locale, localCorpus);
       const saved: SavedRun = {
         id: createId(),
         queryText: queryText.trim(),
@@ -209,6 +347,44 @@ export default function App() {
   const applyScenario = (exampleQuery: string) => {
     setQueryText(exampleQuery);
     setNotice("Scenario loaded.");
+  };
+
+  const saveCorpusDocument = () => {
+    const title = documentTitle.trim();
+    const body = documentBody.trim();
+
+    if (!title || !body) {
+      setNotice("Add a title and document text before saving.");
+      return;
+    }
+
+    const timestamp = nowIso();
+    const document: LocalCorpusDocument = {
+      id: createId(),
+      title,
+      source: documentSource.trim(),
+      sourceUrl: documentSourceUrl.trim(),
+      body,
+      tags: documentTags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+
+    setLocalCorpus((current) => [document, ...current]);
+    setDocumentTitle("");
+    setDocumentSource("");
+    setDocumentSourceUrl("");
+    setDocumentBody("");
+    setDocumentTags("");
+    setNotice("Local document saved.");
+  };
+
+  const removeCorpusDocument = (documentId: string) => {
+    setLocalCorpus((current) => current.filter((document) => document.id !== documentId));
+    setNotice("Local document removed.");
   };
 
   const copyMarkdown = async () => {
@@ -289,6 +465,62 @@ export default function App() {
           </div>
         </section>
 
+        <section className="corpus-panel" aria-label="Local corpus">
+          <span className="eyebrow">Local Corpus</span>
+          <label>
+            Document title
+            <input value={documentTitle} onChange={(event) => setDocumentTitle(event.target.value)} />
+          </label>
+          <label>
+            Source
+            <input
+              placeholder="File, customer note, meeting, or URL label"
+              value={documentSource}
+              onChange={(event) => setDocumentSource(event.target.value)}
+            />
+          </label>
+          <label>
+            Source URL
+            <input
+              placeholder="Optional"
+              value={documentSourceUrl}
+              onChange={(event) => setDocumentSourceUrl(event.target.value)}
+            />
+          </label>
+          <label>
+            Text
+            <textarea value={documentBody} onChange={(event) => setDocumentBody(event.target.value)} />
+          </label>
+          <label>
+            Tags
+            <input
+              placeholder="Optional comma-separated tags"
+              value={documentTags}
+              onChange={(event) => setDocumentTags(event.target.value)}
+            />
+          </label>
+          <button type="button" onClick={saveCorpusDocument}>
+            Save Document
+          </button>
+          <div className="corpus-list" aria-label="Saved local documents">
+            {localCorpus.length > 0 ? (
+              localCorpus.slice(0, 8).map((document) => (
+                <article key={document.id}>
+                  <div>
+                    <strong>{document.title}</strong>
+                    <small>{document.source || "Local document"}</small>
+                  </div>
+                  <button type="button" onClick={() => removeCorpusDocument(document.id)}>
+                    Remove
+                  </button>
+                </article>
+              ))
+            ) : (
+              <p>No local documents saved yet.</p>
+            )}
+          </div>
+        </section>
+
         <nav className="history-list" aria-label="Facet history">
           {savedRuns.map((run) => (
             <button
@@ -317,7 +549,7 @@ export default function App() {
               </div>
               <div className="count-card">
                 <strong>{activeRun.result.search.results.length}</strong>
-                <span>Results</span>
+                <span>{localCorpus.length} local docs</span>
               </div>
             </header>
 
@@ -367,7 +599,7 @@ export default function App() {
                       </article>
                     ))
                   ) : (
-                    <p>No fixture-backed results matched this query yet.</p>
+                    <p>No local or built-in results matched this query yet.</p>
                   )}
                 </div>
               </section>
