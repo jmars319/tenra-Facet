@@ -92,19 +92,6 @@ const defaultEndpointConfig: FacetEndpointConfig = {
   assembly: "",
 };
 
-const readEndpointConfig = (): FacetEndpointConfig => {
-  try {
-    const raw = window.localStorage.getItem(endpointStorageKey);
-    return { ...defaultEndpointConfig, ...(raw ? JSON.parse(raw) : {}) };
-  } catch {
-    return defaultEndpointConfig;
-  }
-};
-
-const writeEndpointConfig = (config: FacetEndpointConfig) => {
-  window.localStorage.setItem(endpointStorageKey, JSON.stringify(config));
-};
-
 const createSearchQuery = (text: string, locale: string): SearchQuery => ({
   id: createId(),
   text: text.trim(),
@@ -342,7 +329,8 @@ export default function App() {
   const [documentTags, setDocumentTags] = useState("");
   const [handoffJson, setHandoffJson] = useState("");
   const [importedHandoff, setImportedHandoff] = useState<FacetOrientationPacket | null>(null);
-  const [endpointConfig, setEndpointConfig] = useState<FacetEndpointConfig>(readEndpointConfig);
+  const [endpointConfig, setEndpointConfig] = useState<FacetEndpointConfig>(defaultEndpointConfig);
+  const [lastSendStatus, setLastSendStatus] = useState("");
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
@@ -354,12 +342,14 @@ export default function App() {
     Promise.all([
       readDesktopStore<SavedRun[]>(runStorageKey),
       readDesktopStore<LocalCorpusDocument[]>(corpusStorageKey),
+      readDesktopStore<FacetEndpointConfig>(endpointStorageKey),
     ])
-      .then(([storedRuns, storedCorpus]) => {
+      .then(([storedRuns, storedCorpus, storedEndpoints]) => {
         if (cancelled) return;
 
         const legacyRuns = readLegacyLocalStorage<SavedRun[]>(runStorageKey);
         const legacyCorpus = readLegacyLocalStorage<LocalCorpusDocument[]>(corpusStorageKey);
+        const legacyEndpoints = readLegacyLocalStorage<FacetEndpointConfig>(endpointStorageKey);
         const nextRuns =
           Array.isArray(storedRuns) && storedRuns.length > 0
             ? storedRuns
@@ -379,8 +369,9 @@ export default function App() {
               ? legacyCorpus
               : [];
         setLocalCorpus(nextCorpus);
+        setEndpointConfig({ ...defaultEndpointConfig, ...(storedEndpoints ?? legacyEndpoints ?? {}) });
         setNotice(
-          nextRuns || nextCorpus.length
+          nextRuns || nextCorpus.length || storedEndpoints || legacyEndpoints
             ? "Desktop store loaded."
             : "Local Facet workbench ready.",
         );
@@ -413,6 +404,14 @@ export default function App() {
       setNotice(error instanceof Error ? error.message : "Local corpus write failed.");
     });
   }, [isStoreReady, localCorpus]);
+
+  useEffect(() => {
+    if (!isStoreReady) return;
+
+    void writeDesktopStore(endpointStorageKey, endpointConfig).catch((error: unknown) => {
+      setNotice(error instanceof Error ? error.message : "Endpoint store write failed.");
+    });
+  }, [endpointConfig, isStoreReady]);
 
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
@@ -564,9 +563,7 @@ export default function App() {
 
   const updateEndpoint = (target: keyof FacetEndpointConfig, value: string) => {
     setEndpointConfig((current) => {
-      const next = { ...current, [target]: value };
-      writeEndpointConfig(next);
-      return next;
+      return { ...current, [target]: value };
     });
   };
 
@@ -580,6 +577,7 @@ export default function App() {
 
     if (!endpoint) {
       await navigator.clipboard.writeText(JSON.stringify(packet, null, 2));
+      setLastSendStatus(`${recommendedNextApp}: fallback copied at ${nowIso()}`);
       setNotice(`${recommendedNextApp} endpoint not configured. Orientation JSON copied.`);
       return;
     }
@@ -593,8 +591,10 @@ export default function App() {
       if (!response.ok) {
         throw new Error(await response.text());
       }
+      setLastSendStatus(`${recommendedNextApp}: ${response.status} ${response.statusText || "OK"} at ${nowIso()}`);
       setNotice(`Orientation packet sent to ${recommendedNextApp}.`);
     } catch (error) {
+      setLastSendStatus(`${recommendedNextApp}: failed at ${nowIso()}`);
       setNotice(error instanceof Error ? error.message : `Could not send to ${recommendedNextApp}.`);
     }
   };
@@ -735,6 +735,7 @@ export default function App() {
               <input value={endpointConfig[target]} onChange={(event) => updateEndpoint(target, event.target.value)} />
             </label>
           ))}
+          {lastSendStatus ? <p className="notice">{lastSendStatus}</p> : null}
         </section>
 
         <section className="scenario-panel" aria-label="Example scenarios">
