@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
-import type { FacetSearchResponse } from "@facet/api-contracts";
+import type { FacetOrientationPacket, FacetSearchResponse } from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
 import type { SearchQuery, SearchResult } from "@facet/domain";
 import { orientWithMockLayer } from "@facet/reframing";
 import { listMockSearchScenarios, searchMockResults } from "@facet/search-providers";
+import { parseFacetOrientationPacket } from "@facet/validation";
 import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
 
 type LocalCorpusDocument = {
@@ -299,6 +300,8 @@ export default function App() {
   const [documentSourceUrl, setDocumentSourceUrl] = useState("");
   const [documentBody, setDocumentBody] = useState("");
   const [documentTags, setDocumentTags] = useState("");
+  const [handoffJson, setHandoffJson] = useState("");
+  const [importedHandoff, setImportedHandoff] = useState<FacetOrientationPacket | null>(null);
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
@@ -523,6 +526,34 @@ export default function App() {
     }
   };
 
+  const importOrientationPacket = () => {
+    if (!handoffJson.trim()) {
+      setNotice("Paste a Facet orientation packet before importing.");
+      return;
+    }
+
+    try {
+      const packet = parseFacetOrientationPacket(JSON.parse(handoffJson));
+      const nextLocale = packet.query.locale ?? locale;
+      const saved: SavedRun = {
+        id: createId(),
+        locale: nextLocale,
+        queryText: packet.query.text,
+        result: packet.response,
+      };
+
+      setSavedRuns((current) => [saved, ...current]);
+      setActiveId(saved.id);
+      setQueryText(packet.query.text);
+      setLocale(nextLocale);
+      setImportedHandoff(packet);
+      setNotice(`Imported ${packet.schema} for ${packet.handoff.recommendedNextApp}.`);
+    } catch (error) {
+      setImportedHandoff(null);
+      setNotice(error instanceof Error ? error.message : "Facet handoff import failed.");
+    }
+  };
+
   return (
     <main className="facet-shell">
       <aside className="facet-sidebar">
@@ -565,6 +596,23 @@ export default function App() {
           <p className="notice" role="status">
             {notice}
           </p>
+        </section>
+
+        <section className="query-panel" aria-label="Facet handoff inbox">
+          <span className="eyebrow">Handoff Inbox</span>
+          <label>
+            Orientation packet JSON
+            <textarea value={handoffJson} onChange={(event) => setHandoffJson(event.target.value)} />
+          </label>
+          <button type="button" onClick={importOrientationPacket}>
+            Import Orientation
+          </button>
+          {importedHandoff ? (
+            <p className="notice">
+              {importedHandoff.sourceApp} / {importedHandoff.handoff.recommendedNextApp} /{" "}
+              {importedHandoff.response.search.results.length} result(s)
+            </p>
+          ) : null}
         </section>
 
         <section className="scenario-panel" aria-label="Example scenarios">

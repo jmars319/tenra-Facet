@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { FacetOrientationPacket } from "@facet/api-contracts";
 
 export const facetIdSchema = z.string().min(1);
 export const timestampSchema = z.string().min(1);
@@ -107,5 +108,5 @@ export const facetOrientationPacketSchema = z.object({
   })
 });
 
-export const parseFacetOrientationPacket = (input: unknown) =>
-  facetOrientationPacketSchema.parse(input);
+export const parseFacetOrientationPacket = (input: unknown): FacetOrientationPacket =>
+  facetOrientationPacketSchema.parse(input) as FacetOrientationPacket;
