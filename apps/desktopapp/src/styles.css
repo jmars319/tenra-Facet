@@ -162,6 +162,24 @@ textarea {
   border-color: #cbbfac;
 }
 
+.send-error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.retry-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.retry-list > div {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #d5cabb;
+  border-radius: 8px;
+  padding: 0.65rem;
+}
+
 .hidden-file-input {
   position: absolute;
   width: 1px;

@@ -39,10 +39,19 @@ type FacetDesktopExport = {
 };
 
 type FacetEndpointConfig = Record<Exclude<FacetOrientationPacketConsumer, "manual">, string>;
+type FacetSendRetry = {
+  id: string;
+  target: Exclude<FacetOrientationPacketConsumer, "manual">;
+  endpoint: string;
+  packet: FacetOrientationPacket;
+  failedAt: string;
+  message: string;
+};
 
 const runStorageKey = "tenra-facet-desktop-runs:v1";
 const corpusStorageKey = "tenra-facet-local-corpus:v1";
 const endpointStorageKey = "tenra-facet-suite-endpoints:v1";
+const sendRetryQueueStorageKey = "tenra-facet-suite-send-retry-queue:v1";
 const scenarios = listMockSearchScenarios();
 const localCorpusProvider = { key: "local-corpus", label: "Local Corpus" };
 const stopWords = new Set([
@@ -330,6 +339,8 @@ export default function App() {
   const [handoffJson, setHandoffJson] = useState("");
   const [importedHandoff, setImportedHandoff] = useState<FacetOrientationPacket | null>(null);
   const [endpointConfig, setEndpointConfig] = useState<FacetEndpointConfig>(defaultEndpointConfig);
+  const [sendRetryQueue, setSendRetryQueue] = useState<FacetSendRetry[]>([]);
+  const [sendValidationErrors, setSendValidationErrors] = useState<Record<string, string>>({});
   const [lastSendStatus, setLastSendStatus] = useState("");
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
@@ -343,13 +354,15 @@ export default function App() {
       readDesktopStore<SavedRun[]>(runStorageKey),
       readDesktopStore<LocalCorpusDocument[]>(corpusStorageKey),
       readDesktopStore<FacetEndpointConfig>(endpointStorageKey),
+      readDesktopStore<FacetSendRetry[]>(sendRetryQueueStorageKey),
     ])
-      .then(([storedRuns, storedCorpus, storedEndpoints]) => {
+      .then(([storedRuns, storedCorpus, storedEndpoints, storedRetryQueue]) => {
         if (cancelled) return;
 
         const legacyRuns = readLegacyLocalStorage<SavedRun[]>(runStorageKey);
         const legacyCorpus = readLegacyLocalStorage<LocalCorpusDocument[]>(corpusStorageKey);
         const legacyEndpoints = readLegacyLocalStorage<FacetEndpointConfig>(endpointStorageKey);
+        const legacyRetryQueue = readLegacyLocalStorage<FacetSendRetry[]>(sendRetryQueueStorageKey);
         const nextRuns =
           Array.isArray(storedRuns) && storedRuns.length > 0
             ? storedRuns
@@ -370,6 +383,7 @@ export default function App() {
               : [];
         setLocalCorpus(nextCorpus);
         setEndpointConfig({ ...defaultEndpointConfig, ...(storedEndpoints ?? legacyEndpoints ?? {}) });
+        setSendRetryQueue(Array.isArray(storedRetryQueue) ? storedRetryQueue : Array.isArray(legacyRetryQueue) ? legacyRetryQueue : []);
         setNotice(
           nextRuns || nextCorpus.length || storedEndpoints || legacyEndpoints
             ? "Desktop store loaded."
@@ -412,6 +426,14 @@ export default function App() {
       setNotice(error instanceof Error ? error.message : "Endpoint store write failed.");
     });
   }, [endpointConfig, isStoreReady]);
+
+  useEffect(() => {
+    if (!isStoreReady) return;
+
+    void writeDesktopStore(sendRetryQueueStorageKey, sendRetryQueue).catch((error: unknown) => {
+      setNotice(error instanceof Error ? error.message : "Retry queue write failed.");
+    });
+  }, [isStoreReady, sendRetryQueue]);
 
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
@@ -567,6 +589,58 @@ export default function App() {
     });
   };
 
+  const sendPacketToEndpoint = async (
+    recommendedNextApp: Exclude<FacetOrientationPacketConsumer, "manual">,
+    packet: FacetOrientationPacket,
+    endpoint: string,
+    retryId?: string,
+  ) => {
+    try {
+      parseFacetOrientationPacket(packet);
+      setSendValidationErrors((current) => {
+        const next = { ...current };
+        delete next[recommendedNextApp];
+        return next;
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Facet orientation packet is malformed.";
+      setSendValidationErrors((current) => ({ ...current, [recommendedNextApp]: message }));
+      setNotice(message);
+      return;
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(packet),
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      setLastSendStatus(`${recommendedNextApp}: ${response.status} ${response.statusText || "OK"} at ${nowIso()}`);
+      setNotice(`Orientation packet sent to ${recommendedNextApp}.`);
+      if (retryId) {
+        setSendRetryQueue((current) => current.filter((item) => item.id !== retryId));
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : `Could not send to ${recommendedNextApp}.`;
+      setLastSendStatus(`${recommendedNextApp}: failed at ${nowIso()}`);
+      setNotice(message);
+      setSendRetryQueue((current) => [
+        {
+          id: retryId ?? createId(),
+          target: recommendedNextApp,
+          endpoint,
+          packet,
+          failedAt: nowIso(),
+          message,
+        },
+        ...current.filter((item) => item.id !== retryId),
+      ].slice(0, 20));
+    }
+  };
+
   const sendOrientationPacket = async (recommendedNextApp: Exclude<FacetOrientationPacketConsumer, "manual">) => {
     if (!activeRun) return;
     const packet = buildFacetOrientationPacket({
@@ -582,21 +656,7 @@ export default function App() {
       return;
     }
 
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(packet),
-      });
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-      setLastSendStatus(`${recommendedNextApp}: ${response.status} ${response.statusText || "OK"} at ${nowIso()}`);
-      setNotice(`Orientation packet sent to ${recommendedNextApp}.`);
-    } catch (error) {
-      setLastSendStatus(`${recommendedNextApp}: failed at ${nowIso()}`);
-      setNotice(error instanceof Error ? error.message : `Could not send to ${recommendedNextApp}.`);
-    }
+    await sendPacketToEndpoint(recommendedNextApp, packet, endpoint);
   };
 
   const exportWorkspace = () => {
@@ -733,9 +793,28 @@ export default function App() {
             <label key={target}>
               {target}
               <input value={endpointConfig[target]} onChange={(event) => updateEndpoint(target, event.target.value)} />
+              {sendValidationErrors[target] ? <small className="send-error">{sendValidationErrors[target]}</small> : null}
             </label>
           ))}
           {lastSendStatus ? <p className="notice">{lastSendStatus}</p> : null}
+          {sendRetryQueue.length ? (
+            <div className="retry-list">
+              <span className="eyebrow">Retry queue</span>
+              {sendRetryQueue.slice(0, 5).map((item) => (
+                <div key={item.id}>
+                  <small>
+                    {item.target} · {new Date(item.failedAt).toLocaleString()} · {item.message.slice(0, 100)}
+                  </small>
+                  <button
+                    type="button"
+                    onClick={() => void sendPacketToEndpoint(item.target, item.packet, item.endpoint, item.id)}
+                  >
+                    Retry {item.target}
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </section>
 
         <section className="scenario-panel" aria-label="Example scenarios">
