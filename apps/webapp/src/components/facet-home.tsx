@@ -2,7 +2,7 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useState, useTransition } from "react";
-import type { FacetSearchResponse } from "@facet/api-contracts";
+import { buildFacetOrientationPacket, type FacetSearchResponse } from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
 import type { SearchResult } from "@facet/domain";
 import type { MockSearchScenarioSummary } from "@facet/search-providers";
@@ -101,6 +101,7 @@ export function FacetHome(props: {
     state.search.results.length > 0
       ? `${state.search.results.length} mocked results`
       : "No mock scenario matched";
+  const orientationPacket = buildFacetOrientationPacket({ response: state });
 
   return (
     <main
@@ -340,6 +341,11 @@ export function FacetHome(props: {
                 </div>
               </div>
             ) : null}
+            <div style={{ display: "grid", gap: `${spacing.sm}px` }}>
+              <div style={{ color: colors.muted, fontSize: "0.9rem" }}>Handoff</div>
+              <span style={pillStyle}>{orientationPacket.schema}</span>
+              <span style={pillStyle}>Next: {orientationPacket.handoff.recommendedNextApp}</span>
+            </div>
           </section>
         </aside>
       </section>

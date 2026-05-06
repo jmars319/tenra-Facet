@@ -48,3 +48,31 @@ export interface FacetOrientationPacket {
     notes: string[];
   };
 }
+
+export function buildFacetOrientationPacket(input: {
+  response: FacetSearchResponse;
+  exportedAt?: string | undefined;
+  recommendedNextApp?: FacetOrientationPacketConsumer | undefined;
+  notes?: string[] | undefined;
+}): FacetOrientationPacket {
+  const block = input.response.reframing.block;
+
+  return {
+    schema: "tenra-facet.orientation-packet.v1",
+    exportedAt: input.exportedAt ?? new Date().toISOString(),
+    sourceApp: "facet",
+    query: input.response.search.query,
+    response: input.response,
+    handoff: {
+      recommendedNextApp: input.recommendedNextApp ?? "derive",
+      prompt: [
+        block.heading,
+        block.line,
+        ...block.followups.map((followup) => followup.prompt)
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      notes: input.notes ?? ["Preserve result provenance, commonality, and uncertainty."]
+    }
+  };
+}
