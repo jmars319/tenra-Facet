@@ -29,3 +29,22 @@ export interface FacetSearchResponse {
   search: SearchResponse;
   reframing: ReframingResponse;
 }
+
+export type FacetOrientationPacketConsumer =
+  | "derive"
+  | "assembly"
+  | "sentinel"
+  | "manual";
+
+export interface FacetOrientationPacket {
+  schema: "tenra-facet.orientation-packet.v1";
+  exportedAt: string;
+  sourceApp: "facet";
+  query: SearchQuery;
+  response: FacetSearchResponse;
+  handoff: {
+    recommendedNextApp: FacetOrientationPacketConsumer;
+    prompt: string;
+    notes: string[];
+  };
+}

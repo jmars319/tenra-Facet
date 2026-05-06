@@ -93,3 +93,19 @@ export const facetSearchResponseSchema = z.object({
   search: searchResponseSchema,
   reframing: reframingResponseSchema
 });
+
+export const facetOrientationPacketSchema = z.object({
+  schema: z.literal("tenra-facet.orientation-packet.v1"),
+  exportedAt: z.string().datetime({ offset: true }),
+  sourceApp: z.literal("facet"),
+  query: searchQuerySchema,
+  response: facetSearchResponseSchema,
+  handoff: z.object({
+    recommendedNextApp: z.enum(["derive", "assembly", "sentinel", "manual"]),
+    prompt: z.string().min(1),
+    notes: z.array(z.string().min(1))
+  })
+});
+
+export const parseFacetOrientationPacket = (input: unknown) =>
+  facetOrientationPacketSchema.parse(input);

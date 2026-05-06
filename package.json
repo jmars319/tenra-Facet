@@ -19,6 +19,7 @@
     "build:desktop": "pnpm --filter @facet/desktopapp build",
     "package:desktop": "pnpm --filter @facet/desktopapp exec tauri build --bundles app",
     "install:desktop": "pnpm run package:desktop && bash ./scripts/install-desktop-app.sh",
+    "launch:desktop": "open -n \"/Applications/tenra Facet.app\"",
     "build:mobile": "pnpm --filter @facet/mobileapp build",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",

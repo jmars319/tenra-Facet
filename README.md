@@ -30,6 +30,7 @@ Useful commands:
 - `pnpm verify:desktop`
 - `pnpm verify:mobile`
 - `pnpm verify:all`
+- `pnpm launch:desktop`
 - `pnpm doctor`
 
 ## Why it is structured this way

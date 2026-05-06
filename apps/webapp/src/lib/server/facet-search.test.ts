@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { buildFacetSearchRequest } from "../facet-search-request";
 import { defaultFacetMockQuery, runFacetSearch } from "./facet-search";
+import { facetOrientationPacketSchema } from "@facet/validation";
 
 test("runFacetSearch returns normalized results and one orientation block", async () => {
   const response = await runFacetSearch(buildFacetSearchRequest(defaultFacetMockQuery));
@@ -17,4 +18,24 @@ test("runFacetSearch falls back cleanly for an unknown fixture query", async () 
 
   assert.equal(response.search.results.length, 0);
   assert.equal(response.reframing.block.heading, "Choose one of the mock scenarios");
+});
+
+test("Facet orientation packets validate for Derive handoff", async () => {
+  const request = buildFacetSearchRequest(defaultFacetMockQuery);
+  const response = await runFacetSearch(request);
+
+  const packet = facetOrientationPacketSchema.parse({
+    schema: "tenra-facet.orientation-packet.v1",
+    exportedAt: "2026-05-06T17:30:00.000Z",
+    sourceApp: "facet",
+    query: request.query,
+    response,
+    handoff: {
+      recommendedNextApp: "derive",
+      prompt: "Use this orientation packet to produce a structured answer.",
+      notes: ["Preserve result provenance and uncertainty."],
+    },
+  });
+
+  assert.equal(packet.handoff.recommendedNextApp, "derive");
 });
