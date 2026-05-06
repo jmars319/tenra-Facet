@@ -38,8 +38,11 @@ type FacetDesktopExport = {
   schema: "tenra-facet-desktop-workspace:v1";
 };
 
+type FacetEndpointConfig = Record<Exclude<FacetOrientationPacketConsumer, "manual">, string>;
+
 const runStorageKey = "tenra-facet-desktop-runs:v1";
 const corpusStorageKey = "tenra-facet-local-corpus:v1";
+const endpointStorageKey = "tenra-facet-suite-endpoints:v1";
 const scenarios = listMockSearchScenarios();
 const localCorpusProvider = { key: "local-corpus", label: "Local Corpus" };
 const stopWords = new Set([
@@ -81,6 +84,25 @@ const downloadJsonFile = (value: unknown, filename: string) => {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+};
+
+const defaultEndpointConfig: FacetEndpointConfig = {
+  derive: "",
+  sentinel: "",
+  assembly: "",
+};
+
+const readEndpointConfig = (): FacetEndpointConfig => {
+  try {
+    const raw = window.localStorage.getItem(endpointStorageKey);
+    return { ...defaultEndpointConfig, ...(raw ? JSON.parse(raw) : {}) };
+  } catch {
+    return defaultEndpointConfig;
+  }
+};
+
+const writeEndpointConfig = (config: FacetEndpointConfig) => {
+  window.localStorage.setItem(endpointStorageKey, JSON.stringify(config));
 };
 
 const createSearchQuery = (text: string, locale: string): SearchQuery => ({
@@ -320,6 +342,7 @@ export default function App() {
   const [documentTags, setDocumentTags] = useState("");
   const [handoffJson, setHandoffJson] = useState("");
   const [importedHandoff, setImportedHandoff] = useState<FacetOrientationPacket | null>(null);
+  const [endpointConfig, setEndpointConfig] = useState<FacetEndpointConfig>(readEndpointConfig);
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
@@ -539,6 +562,43 @@ export default function App() {
     }
   };
 
+  const updateEndpoint = (target: keyof FacetEndpointConfig, value: string) => {
+    setEndpointConfig((current) => {
+      const next = { ...current, [target]: value };
+      writeEndpointConfig(next);
+      return next;
+    });
+  };
+
+  const sendOrientationPacket = async (recommendedNextApp: Exclude<FacetOrientationPacketConsumer, "manual">) => {
+    if (!activeRun) return;
+    const packet = buildFacetOrientationPacket({
+      response: activeRun.result,
+      recommendedNextApp,
+    });
+    const endpoint = endpointConfig[recommendedNextApp].trim();
+
+    if (!endpoint) {
+      await navigator.clipboard.writeText(JSON.stringify(packet, null, 2));
+      setNotice(`${recommendedNextApp} endpoint not configured. Orientation JSON copied.`);
+      return;
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(packet),
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      setNotice(`Orientation packet sent to ${recommendedNextApp}.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : `Could not send to ${recommendedNextApp}.`);
+    }
+  };
+
   const exportWorkspace = () => {
     const payload: FacetDesktopExport = {
       exportedAt: nowIso(),
@@ -665,6 +725,16 @@ export default function App() {
               {importedHandoff.response.search.results.length} result(s)
             </p>
           ) : null}
+        </section>
+
+        <section className="query-panel" aria-label="Suite endpoint configuration">
+          <span className="eyebrow">Suite Sends</span>
+          {(["derive", "sentinel", "assembly"] as const).map((target) => (
+            <label key={target}>
+              {target}
+              <input value={endpointConfig[target]} onChange={(event) => updateEndpoint(target, event.target.value)} />
+            </label>
+          ))}
         </section>
 
         <section className="scenario-panel" aria-label="Example scenarios">
@@ -836,7 +906,13 @@ export default function App() {
                   <button type="button" onClick={() => exportOrientationPacket("derive")}>
                     Export Orientation
                   </button>
-                  <button type="button" onClick={() => void copyOrientationPacket("assembly")}>
+                  <button type="button" onClick={() => void sendOrientationPacket("derive")}>
+                    Send Derive
+                  </button>
+                  <button type="button" onClick={() => void sendOrientationPacket("sentinel")}>
+                    Send Sentinel
+                  </button>
+                  <button type="button" onClick={() => void sendOrientationPacket("assembly")}>
                     Send Assembly
                   </button>
                 </div>
