@@ -41,7 +41,7 @@ Useful commands:
 
 ## Next steps
 
-The desktop app now provides a local multi-angle question and reframing workbench with saved history, Markdown export, built-in scenario starters, and a local corpus. Users can add local notes or documents, run Facet against that corpus, and keep the review offline. Real live search aggregation, deduplication, provenance enrichment, live LLM behavior, and safety enforcement are still future work.
+The desktop app now provides a local multi-angle question and reframing workbench with saved history, Markdown export, built-in scenario starters, a local corpus, and JSON workspace import/export. Users can add local notes or documents, run Facet against that corpus, back up the workspace, move it between machines, and keep the review offline. Real live search aggregation, deduplication, provenance enrichment, live LLM behavior, and safety enforcement are still future work.
 
 The web shell now includes a fixture-backed vertical slice for a few representative scenarios, but it still does not perform live search or live LLM behavior.
 

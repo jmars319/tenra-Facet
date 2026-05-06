@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 import type { FacetSearchResponse } from "@facet/api-contracts";
 import { APP_NAME } from "@facet/config";
 import type { SearchQuery, SearchResult } from "@facet/domain";
@@ -22,6 +23,13 @@ type SavedRun = {
   queryText: string;
   locale: string;
   result: FacetSearchResponse;
+};
+
+type FacetDesktopExport = {
+  exportedAt: string;
+  localCorpus: LocalCorpusDocument[];
+  savedRuns: SavedRun[];
+  schema: "tenra-facet-desktop-workspace:v1";
 };
 
 const runStorageKey = "tenra-facet-desktop-runs:v1";
@@ -53,6 +61,8 @@ const createId = () =>
     : `facet-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const nowIso = () => new Date().toISOString();
+
+const todayForFilename = () => new Date().toISOString().slice(0, 10);
 
 const createSearchQuery = (text: string, locale: string): SearchQuery => ({
   id: createId(),
@@ -163,6 +173,55 @@ const loadSavedRuns = () => {
   return [];
 };
 
+const isSavedRun = (value: unknown): value is SavedRun => {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<SavedRun>;
+
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.queryText === "string" &&
+    typeof candidate.locale === "string" &&
+    Boolean(candidate.result)
+  );
+};
+
+const isLocalCorpusDocument = (value: unknown): value is LocalCorpusDocument => {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<LocalCorpusDocument>;
+
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.title === "string" &&
+    typeof candidate.source === "string" &&
+    typeof candidate.sourceUrl === "string" &&
+    typeof candidate.body === "string" &&
+    Array.isArray(candidate.tags) &&
+    typeof candidate.createdAt === "string" &&
+    typeof candidate.updatedAt === "string"
+  );
+};
+
+const parseWorkspaceImport = (input: unknown): FacetDesktopExport => {
+  if (!input || typeof input !== "object") {
+    throw new Error("Facet workspace JSON must be an object.");
+  }
+
+  const candidate = input as Partial<FacetDesktopExport>;
+  const savedRuns = Array.isArray(candidate.savedRuns) ? candidate.savedRuns : [];
+  const localCorpus = Array.isArray(candidate.localCorpus) ? candidate.localCorpus : [];
+
+  if (!savedRuns.every(isSavedRun) || !localCorpus.every(isLocalCorpusDocument)) {
+    throw new Error("Facet workspace JSON contains unsupported records.");
+  }
+
+  return {
+    exportedAt: typeof candidate.exportedAt === "string" ? candidate.exportedAt : nowIso(),
+    localCorpus,
+    savedRuns,
+    schema: "tenra-facet-desktop-workspace:v1",
+  };
+};
+
 const formatTime = (iso: string) =>
   new Intl.DateTimeFormat(undefined, {
     month: "short",
@@ -230,6 +289,7 @@ const toDerivePromptMarkdown = (run: SavedRun) => {
 };
 
 export default function App() {
+  const importInputRef = useRef<HTMLInputElement>(null);
   const [queryText, setQueryText] = useState(scenarios[0]?.exampleQuery ?? "");
   const [locale, setLocale] = useState("en-US");
   const [savedRuns, setSavedRuns] = useState<SavedRun[]>(loadSavedRuns);
@@ -424,6 +484,45 @@ export default function App() {
     setNotice("Markdown export created.");
   };
 
+  const exportWorkspace = () => {
+    const payload: FacetDesktopExport = {
+      exportedAt: nowIso(),
+      localCorpus,
+      savedRuns,
+      schema: "tenra-facet-desktop-workspace:v1",
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `tenra-facet-workspace-${todayForFilename()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setNotice("Facet workspace export created.");
+  };
+
+  const importWorkspace = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+
+    try {
+      const workspace = parseWorkspaceImport(JSON.parse(await file.text()));
+      setSavedRuns(workspace.savedRuns);
+      setLocalCorpus(workspace.localCorpus);
+      setActiveId(workspace.savedRuns[0]?.id ?? "");
+      setNotice(
+        `Imported ${workspace.savedRuns.length} review(s) and ${workspace.localCorpus.length} local document(s).`,
+      );
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Facet workspace import failed.");
+    }
+  };
+
   return (
     <main className="facet-shell">
       <aside className="facet-sidebar">
@@ -447,6 +546,21 @@ export default function App() {
           <button disabled={isRunning} type="button" onClick={runSearch}>
             {isRunning ? "Running..." : "Run Facet"}
           </button>
+          <div className="workspace-actions">
+            <button type="button" onClick={exportWorkspace}>
+              Export Workspace
+            </button>
+            <button type="button" onClick={() => importInputRef.current?.click()}>
+              Import Workspace
+            </button>
+          </div>
+          <input
+            ref={importInputRef}
+            className="hidden-file-input"
+            type="file"
+            accept="application/json"
+            onChange={importWorkspace}
+          />
 
           <p className="notice" role="status">
             {notice}

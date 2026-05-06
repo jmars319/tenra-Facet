@@ -150,6 +150,28 @@ textarea {
   font-weight: 800;
 }
 
+.workspace-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.workspace-actions button {
+  background: #fffdfa;
+  color: #172033;
+  border-color: #cbbfac;
+}
+
+.hidden-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .notice {
   min-height: 1.35em;
   font-size: 0.9rem;
