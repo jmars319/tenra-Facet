@@ -1,49 +1,76 @@
 # tenra Facet
 
-tenra Facet is a search tool that helps people see questions from multiple angles without answering for them.
+tenra Facet is a search and reframing workbench for turning open-ended questions into inspectable research paths. It emphasizes framing, source boundaries, and answer review rather than presenting search results or AI output as final truth.
 
-This repository is a production-minded pnpm monorepo scaffold. The platform order is desktop first, web second, and mobile third. The web app currently has the earliest fixture-backed vertical slice, but new product depth should land in the desktop workflow first.
+Facet is early-stage product infrastructure for research workflows inside the tenra ecosystem.
 
-## Current status
+## Operational Purpose
 
-- Primary target: `apps/desktopapp`
-- Secondary target: `apps/webapp`
-- Third target: `apps/mobileapp`
-- Central packages: `shared-types`, `domain`, `api-contracts`, `validation`, `search-providers`, `reframing`, `safety`, `privacy`, `config`
-- Support packages: `auth`, `ui`
-- Optional placeholders: `optional-realtime`, `optional-geo`
+- Help operators reframe a question into more useful research angles.
+- Keep search providers, reframing logic, and validation separated.
+- Support answer review with explicit assumptions and source boundaries.
+- Provide a shared vocabulary for research-oriented handoffs.
 
-## Getting started
+## Design Posture
 
-```bash
-pnpm bootstrap
-pnpm dev:web
+- Framing before answering.
+- Search provider boundaries over ad hoc scraping.
+- Optional geo/realtime packages kept separate until needed.
+- Desktop and web surfaces stay thin around shared domain logic.
+- AI assistance should improve review clarity, not replace review.
+
+## Architecture
+
+```text
+apps/
+  webapp/       Next.js research and reframing surface
+  desktopapp/   Tauri + React/Vite local workbench
+  mobileapp/    Expo scaffold for later lightweight review
+
+packages/
+  domain/           Question, source, and research-path models
+  reframing/        Reframing helpers and answer-shape vocabulary
+  search-providers/ Provider interfaces and mock/search adapters
+  safety/           Review and boundary helpers
+  validation/       Runtime schemas
+  api-contracts/    Request and response contracts
+  ui/               Shared interface primitives
+  config/           Product identity and environment helpers
 ```
 
-Useful commands:
+## Current State
 
-- `pnpm check:env`
-- `pnpm check:packages`
-- `pnpm lint`
-- `pnpm typecheck`
-- `pnpm verify:web`
-- `pnpm verify:desktop`
-- `pnpm verify:mobile`
-- `pnpm verify:all`
-- `pnpm launch:desktop`
-- `pnpm doctor`
+- The repo is an active scaffold for the Facet product direction.
+- Web and desktop surfaces are present for research workflow development.
+- Shared packages define the early product vocabulary.
+- Provider behavior is intentionally bounded and still evolving.
+- Mobile is scaffolded for later review use.
 
-## Why it is structured this way
+## Deployment Posture
 
-- Apps stay thin and mostly compose shared packages.
-- Shared packages own contracts and reusable logic seams.
-- Search providers, reframing, privacy, and safety are isolated so they can grow without forcing platform-specific branching.
-- Desktop should become the main product surface before the web and mobile surfaces grow further.
+Facet is not production research infrastructure yet. Deployment should wait until provider behavior, source handling, safety boundaries, and persistence expectations are clearer.
 
-## Next steps
+## Working Locally
 
-The desktop app now provides a local multi-angle question and reframing workbench with saved history, Markdown export, built-in scenario starters, a local corpus, and JSON workspace import/export. Users can add local notes or documents, run Facet against that corpus, back up the workspace, move it between machines, and keep the review offline. Real live search aggregation, deduplication, provenance enrichment, live LLM behavior, and safety enforcement are still future work.
+```bash
+pnpm run bootstrap
+pnpm run dev:web
+pnpm run dev:desktop
+pnpm run typecheck
+pnpm run verify:all
+pnpm run doctor
+```
 
-The web shell now includes a fixture-backed vertical slice for a few representative scenarios, but it still does not perform live search or live LLM behavior.
+## Direction
 
-See `docs/DEVELOPER_GUIDE.md`, `docs/REPO_MAP.md`, `docs/ARCHITECTURE_NOTES.md`, and `docs/NEGATIVE_SPEC.md` for the working conventions and extension points.
+- Improve source-boundary and assumption review.
+- Clarify which research workflows belong in Facet versus Derive or Sentinel.
+- Keep provider adapters replaceable and explicit.
+- Build toward structured research handoffs instead of generic answer generation.
+
+## Related Documentation
+
+- [Architecture Notes](docs/ARCHITECTURE_NOTES.md)
+- [Negative Spec](docs/NEGATIVE_SPEC.md)
+- [Developer Guide](docs/DEVELOPER_GUIDE.md)
+- [Repo Map](docs/REPO_MAP.md)
