@@ -8,6 +8,10 @@ research orientation and packet source
 
 keep unique; Derive, Assembly, and Sentinel should consume orientation packets as modular inputs.
 
+## Standalone Mode
+
+Runs as a complete research orientation app with local queries, responses, orientation packets, endpoint checks, and retry queues.
+
 ## Accepted Inputs
 
 - No accepted suite contract is registered yet.
