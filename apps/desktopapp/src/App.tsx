@@ -342,6 +342,8 @@ export default function App() {
   const [sendRetryQueue, setSendRetryQueue] = useState<FacetSendRetry[]>([]);
   const [sendValidationErrors, setSendValidationErrors] = useState<Record<string, string>>({});
   const [lastSendStatus, setLastSendStatus] = useState("");
+  const [endpointHealth, setEndpointHealth] = useState<Record<string, string>>({});
+  const [selectedRetryPayload, setSelectedRetryPayload] = useState<FacetSendRetry | null>(null);
   const [activeId, setActiveId] = useState(savedRuns[0]?.id ?? "");
   const [notice, setNotice] = useState("Local Facet workbench ready.");
   const [isRunning, setIsRunning] = useState(false);
@@ -659,6 +661,40 @@ export default function App() {
     await sendPacketToEndpoint(recommendedNextApp, packet, endpoint);
   };
 
+  const checkSendEndpoints = async () => {
+    const results: Record<string, string> = {};
+    await Promise.all(
+      (["derive", "sentinel", "assembly"] as const).map(async (target) => {
+        const endpoint = endpointConfig[target].trim();
+        if (!endpoint) {
+          results[target] = "not configured";
+          return;
+        }
+        try {
+          const response = await fetch(endpoint, { method: "OPTIONS" });
+          results[target] = response.ok || response.status === 405 ? `reachable (${response.status})` : `degraded (${response.status})`;
+        } catch (error) {
+          results[target] = error instanceof Error ? error.message : "unreachable";
+        }
+      }),
+    );
+    setEndpointHealth(results);
+    setNotice("Suite send endpoints checked.");
+  };
+
+  const retryAllSends = async () => {
+    for (const item of sendRetryQueue) {
+      await sendPacketToEndpoint(item.target, item.packet, item.endpoint, item.id);
+    }
+  };
+
+  const dismissRetry = (id: string) => {
+    setSendRetryQueue((current) => current.filter((item) => item.id !== id));
+    if (selectedRetryPayload?.id === id) {
+      setSelectedRetryPayload(null);
+    }
+  };
+
   const exportWorkspace = () => {
     const payload: FacetDesktopExport = {
       exportedAt: nowIso(),
@@ -794,12 +830,19 @@ export default function App() {
               {target}
               <input value={endpointConfig[target]} onChange={(event) => updateEndpoint(target, event.target.value)} />
               {sendValidationErrors[target] ? <small className="send-error">{sendValidationErrors[target]}</small> : null}
+              {endpointHealth[target] ? <small>{endpointHealth[target]}</small> : null}
             </label>
           ))}
+          <button type="button" onClick={() => void checkSendEndpoints()}>
+            Check Endpoints
+          </button>
           {lastSendStatus ? <p className="notice">{lastSendStatus}</p> : null}
           {sendRetryQueue.length ? (
             <div className="retry-list">
               <span className="eyebrow">Retry queue</span>
+              <button type="button" onClick={() => void retryAllSends()}>
+                Retry all
+              </button>
               {sendRetryQueue.slice(0, 5).map((item) => (
                 <div key={item.id}>
                   <small>
@@ -811,8 +854,17 @@ export default function App() {
                   >
                     Retry {item.target}
                   </button>
+                  <button type="button" onClick={() => setSelectedRetryPayload(item)}>
+                    Inspect
+                  </button>
+                  <button type="button" onClick={() => dismissRetry(item.id)}>
+                    Dismiss
+                  </button>
                 </div>
               ))}
+              {selectedRetryPayload ? (
+                <pre>{JSON.stringify(selectedRetryPayload.packet, null, 2)}</pre>
+              ) : null}
             </div>
           ) : null}
         </section>
