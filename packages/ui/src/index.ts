@@ -1,10 +1,10 @@
 export const colors = {
-  ink: "#172033",
-  canvas: "#f6f3ec",
-  panel: "#fffdf7",
-  border: "#d7d0bf",
-  accent: "#31625d",
-  muted: "#5d6878"
+  ink: "#f2f2f5",
+  canvas: "#0D0D0F",
+  panel: "#1E1E22",
+  border: "rgba(242, 242, 245, 0.14)",
+  accent: "#09A6D6",
+  muted: "#A0A0A0"
 } as const;
 
 export const spacing = {
