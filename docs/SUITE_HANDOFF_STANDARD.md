@@ -1,6 +1,6 @@
 # Suite Handoff Standard
 
-Generated from `tenra Registry/contracts/handoff-catalog.json` by `tenra Registry/scripts/generate-suite-contract-docs.mjs`.
+Generated from `tenra Hub/contracts/handoff-catalog.json` by `tenra Hub/scripts/generate-suite-contract-docs.mjs`.
 
 ## App Role
 
@@ -11,6 +11,10 @@ keep unique; Derive, Assembly, and Sentinel should consume orientation packets a
 ## Standalone Mode
 
 Runs as a complete research orientation app with local queries, responses, orientation packets, endpoint checks, and retry queues.
+
+## Repository Path
+
+`capabilities/reasoning/tenra Facet`
 
 ## Accepted Inputs
 
