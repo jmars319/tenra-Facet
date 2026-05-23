@@ -571,20 +571,6 @@ export default function App() {
     setNotice(`Orientation packet exported for ${recommendedNextApp}.`);
   };
 
-  const copyOrientationPacket = async (recommendedNextApp: FacetOrientationPacketConsumer = "derive") => {
-    if (!activeRun) return;
-    const packet = buildFacetOrientationPacket({
-      response: activeRun.result,
-      recommendedNextApp,
-    });
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(packet, null, 2));
-      setNotice(`Orientation packet copied for ${recommendedNextApp}.`);
-    } catch {
-      setNotice("Clipboard copy failed. Export still works.");
-    }
-  };
-
   const updateEndpoint = (target: keyof FacetEndpointConfig, value: string) => {
     setEndpointConfig((current) => {
       return { ...current, [target]: value };
