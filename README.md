@@ -25,12 +25,12 @@ Facet is early-stage product infrastructure for research workflows inside the te
 apps/
   webapp/       Next.js research and reframing surface
   desktopapp/   Tauri + React/Vite local workbench
-  mobileapp/    Expo scaffold for later lightweight review
+  mobileapp/    Reserved Expo surface for later lightweight review
 
 packages/
   domain/           Question, source, and research-path models
   reframing/        Reframing helpers and answer-shape vocabulary
-  search-providers/ Provider interfaces and mock/search adapters
+  search-providers/ Provider interfaces and local preview adapters
   safety/           Review and boundary helpers
   validation/       Runtime schemas
   api-contracts/    Request and response contracts
@@ -40,11 +40,11 @@ packages/
 
 ## Current State
 
-- The repo is an active scaffold for the Facet product direction.
+- The repo is active product infrastructure for the Facet direction.
 - Web and desktop surfaces are present for research workflow development.
 - Shared packages define the early product vocabulary.
 - Provider behavior is intentionally bounded and still evolving.
-- Mobile is scaffolded for later review use.
+- Mobile is reserved for later review use.
 
 ## Deployment Posture
 

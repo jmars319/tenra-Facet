@@ -1,0 +1,129 @@
+.query-panel button,
+.corpus-panel > button,
+.action-row button {
+  min-height: 38px;
+  border: 1px solid #315b58;
+  border-radius: 8px;
+  background: #315b58;
+  color: #fffdfa;
+  padding: 8px 12px;
+  font-weight: 800;
+}
+
+.workspace-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.workspace-actions button {
+  background: #1E1E22;
+  color: #f2f2f5;
+  border-color: #cbbfac;
+}
+
+.send-error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.retry-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.retry-list > div {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #d5cabb;
+  border-radius: 8px;
+  padding: 0.65rem;
+}
+
+.retry-list pre {
+  max-height: 240px;
+  overflow: auto;
+  border-radius: 8px;
+  background: #172033;
+  color: #fffdfa;
+  padding: 0.75rem;
+}
+
+.scenario-list,
+.corpus-list,
+.history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.scenario-list button,
+.history-item {
+  width: 100%;
+  border: 1px solid #d2c6b6;
+  border-radius: 8px;
+  background: #1E1E22;
+  color: inherit;
+  padding: 10px 11px;
+  text-align: left;
+  display: grid;
+  gap: 3px;
+}
+
+.corpus-list article {
+  min-width: 0;
+  border: 1px solid #d2c6b6;
+  border-radius: 8px;
+  background: #1E1E22;
+  color: inherit;
+  padding: 10px 11px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.corpus-list div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.corpus-list small,
+.corpus-list p {
+  margin: 0;
+  color: #A0A0A0;
+}
+
+.corpus-list button {
+  flex: 0 0 auto;
+  border: 1px solid #cbbfac;
+  border-radius: 8px;
+  background: #1E1E22;
+  color: #f2f2f5;
+  padding: 6px 9px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.scenario-list button:hover,
+.history-item:hover,
+.history-item-active {
+  border-color: #315b58;
+  background: #1E1E22;
+}
+
+.scenario-list strong,
+.scenario-list small,
+.history-item span,
+.history-item small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-list {
+  overflow: auto;
+  padding-right: 2px;
+}
+

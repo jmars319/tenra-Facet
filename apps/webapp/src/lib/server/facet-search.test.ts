@@ -13,11 +13,11 @@ test("runFacetSearch returns normalized results and one orientation block", asyn
   assert.ok(response.reframing.block.followups.length > 0);
 });
 
-test("runFacetSearch falls back cleanly for an unknown fixture query", async () => {
-  const response = await runFacetSearch(buildFacetSearchRequest("unknown mock fixture query"));
+test("runFacetSearch falls back cleanly for an unknown preview query", async () => {
+  const response = await runFacetSearch(buildFacetSearchRequest("unknown local preview query"));
 
   assert.equal(response.search.results.length, 0);
-  assert.equal(response.reframing.block.heading, "Choose one of the mock scenarios");
+  assert.equal(response.reframing.block.heading, "Choose one of the built-in scenarios");
 });
 
 test("Facet orientation packets validate for Derive handoff", async () => {

@@ -3,7 +3,7 @@
 ## Apps
 
 - `apps/desktopapp`: Primary Vite + React + Tauri product surface. It now provides a local multi-angle question and reframing workbench with saved local corpus documents, built-in scenario starters, orientation prompts, saved history, and Markdown export.
-- `apps/webapp`: Secondary Next.js hosted/API companion surface. It currently has the fixture-backed vertical slice.
+- `apps/webapp`: Secondary Next.js hosted/API companion surface. It currently has the built-in local preview vertical slice.
 - `apps/mobileapp`: Third-surface Expo + React Native shell for future mobile support.
 
 ## Central packages
@@ -14,13 +14,13 @@
 - `packages/validation`: Zod schemas for selected shared and API objects.
 - `packages/search-providers`: Search provider interfaces and normalized result contracts.
 - `packages/reframing`: Orientation and follow-up contracts for helping users inspect a question from different angles.
-- `packages/safety`: Placeholder types for future policy, refusal, and redirection behavior.
-- `packages/privacy`: Privacy and data-handling placeholders.
+- `packages/safety`: Reserved types for future policy, refusal, and redirection behavior.
+- `packages/privacy`: Reserved privacy and data-handling contracts.
 - `packages/config`: Shared product and platform constants.
 
 ## Support packages
 
-- `packages/auth`: Placeholder session and auth subject types.
+- `packages/auth`: Reserved session and auth subject types.
 - `packages/ui`: Small shared tokens only. This is not a component library.
 
 ## Optional packages

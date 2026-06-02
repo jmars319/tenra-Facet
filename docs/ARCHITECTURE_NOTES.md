@@ -15,9 +15,9 @@ tenra Facet is organized so the product can grow by activating seams instead of 
 
 - The web app now has a server-side tenra Facet boundary at `apps/webapp/src/app/api/facet/search/route.ts`.
 - The route delegates orchestration to `apps/webapp/src/lib/server/facet-search.ts`.
-- That server-only module assembles the response from fixture-backed search-provider and reframing packages, validates the request and response, and returns one boring explicit payload.
-- Providers are still mocked.
-- Reframing is still mocked.
+- That server-only module assembles the response from built-in local preview search-provider and reframing packages, validates the request and response, and returns one boring explicit payload.
+- Providers currently use local preview adapters.
+- Reframing currently uses local preview orientation records.
 - The point of the seam is to make future live provider and live reframing integration land in one server boundary instead of inside UI components.
 
 ## Structural rules
@@ -36,4 +36,4 @@ tenra Facet is organized so the product can grow by activating seams instead of 
 - No safety enforcement logic
 - No refusal or redirect policies wired into runtime behavior yet
 
-The scaffold exists so those layers can be added later without re-architecting the repo.
+The reserved seams exist so those layers can be added later without re-architecting the repo.

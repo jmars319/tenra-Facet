@@ -1,0 +1,36 @@
+@media (max-width: 1120px) {
+  .facet-shell,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .facet-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #d7cdbc;
+  }
+
+  .history-list {
+    max-height: 240px;
+  }
+
+  .result-card,
+  .export-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .facet-sidebar,
+  .facet-results {
+    padding: 14px;
+  }
+
+  .review-header {
+    display: grid;
+  }
+
+  .count-card {
+    text-align: left;
+  }
+}
+

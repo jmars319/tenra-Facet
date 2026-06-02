@@ -45,7 +45,7 @@ The shared local machine baseline supports Facet's search, safety, and desktop w
 - The web shell now calls a server route instead of assembling the tenra Facet response inside the client component.
 - The route lives at `apps/webapp/src/app/api/facet/search/route.ts`.
 - The server orchestration lives at `apps/webapp/src/lib/server/facet-search.ts`.
-- Search and reframing data are still fixture-backed. The seam exists so future live integrations have one place to land.
+- Search and reframing data currently come from built-in local preview records. The seam exists so future live integrations have one place to land.
 
 ## Platform status
 

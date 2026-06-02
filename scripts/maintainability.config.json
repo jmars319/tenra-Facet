@@ -1,0 +1,74 @@
+{
+  "label": "tenra-facet",
+  "maxImplementationFileLines": 475,
+  "maxStyleFileLines": 175,
+  "maxAppShellLines": 100,
+  "maxDesktopMainLines": 450,
+  "maxDomainBarrelLines": 250,
+  "nearBudgetMarginLines": 25,
+  "nearBudgetMarginKb": 4,
+  "initialBundleBudgetKb": 288,
+  "requireBuiltAssets": true,
+  "sourceRoots": ["apps", "packages", "scripts"],
+  "assetDirs": ["apps/desktopapp/dist/assets"],
+  "routeChunkBudgetsKb": {
+    "apps/desktopapp/dist/assets/index-.*\\.js$": 288
+  },
+  "generatedPatterns": [
+    "dist/",
+    "dist-bundle/",
+    "/dist/",
+    "/build/",
+    "/out/",
+    "/target/",
+    "/gen/",
+    ".next",
+    ".desktop-runtime",
+    "vite-env.d.ts",
+    "next-env.d.ts",
+    "*.tsbuildinfo"
+  ],
+  "allowedGenerated": [
+    "apps/webapp/next-env.d.ts",
+    "apps/desktopapp/src/vite-env.d.ts"
+  ],
+  "bannedImportPatterns": [
+    "/dist/",
+    "/build/",
+    "/target/",
+    "node_modules/",
+    ".next/"
+  ],
+  "bannedStartupImports": {
+    "apps/desktopapp/src/App.tsx": [
+      "@facet/api-contracts",
+      "@facet/domain",
+      "@facet/reframing",
+      "@facet/search-providers",
+      "@facet/validation",
+      "localStorage",
+      "navigator\\.clipboard"
+    ],
+    "apps/desktopapp/src/AppRoot.tsx": [
+      "@facet/api-contracts",
+      "@facet/domain",
+      "@facet/validation",
+      "localStorage",
+      "navigator\\.clipboard"
+    ]
+  },
+  "cssEntryFiles": [
+    "apps/desktopapp/src/styles.css"
+  ],
+  "assetBudgets": [
+    { "path": "apps/desktopapp/src-tauri/icons/icon.png", "maxBytes": 235000 },
+    { "path": "apps/desktopapp/src-tauri/icons/icon.icns", "maxBytes": 840000 },
+    { "path": "apps/desktopapp/src-tauri/icons/icon.ico", "maxBytes": 155000 }
+  ],
+  "contractSnapshotPath": "scripts/contracts/maintainability-contracts.json",
+  "specificFileBudgets": {
+    "apps/desktopapp/src/hooks/useFacetWorkbench.ts": 475,
+    "apps/desktopapp/src/components/FacetSidebar.tsx": 275,
+    "scripts/audit-maintainability.mjs": 360
+  }
+}

@@ -1,2 +1,2 @@
 export const OPTIONAL_REALTIME_NOTE =
-  "Optional placeholder for future push, presence, or streaming needs. tenra Facet does not depend on this package today.";
+  "Reserved package for future push, presence, or streaming needs. tenra Facet does not depend on this package today.";
