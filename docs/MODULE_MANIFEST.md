@@ -8,7 +8,7 @@ Runs as a complete research orientation app with local queries, responses, orien
 
 ## Repository Path
 
-`capabilities/reasoning/tenra Facet`
+`capabilities/reasoning/Facet by Tenra`
 
 ## Required Suite Dependencies
 

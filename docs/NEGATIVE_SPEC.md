@@ -1,6 +1,6 @@
 # Negative Spec
 
-tenra Facet is not an answer engine. The following constraints are product constraints, not optional style choices.
+Facet by Tenra is not an answer engine. The following constraints are product constraints, not optional style choices.
 
 - Never summarize the web for the user as if one compressed answer is sufficient.
 - Never answer instead of orienting.

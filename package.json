@@ -19,7 +19,7 @@
     "build:desktop": "pnpm --filter @facet/desktopapp build",
     "package:desktop": "pnpm --filter @facet/desktopapp exec tauri build --bundles app",
     "install:desktop": "pnpm run package:desktop && bash ./scripts/install-desktop-app.sh",
-    "launch:desktop": "open -n \"/Applications/tenra Facet.app\"",
+    "launch:desktop": "open -n \"/Applications/Facet by Tenra.app\"",
     "build:mobile": "pnpm --filter @facet/mobileapp build",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",
@@ -42,5 +42,6 @@
     "globals": "^17.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.0"
-  }
+  },
+  "description": "Facet by Tenra is a local orientation and framing workbench for multi-angle research contexts."
 }

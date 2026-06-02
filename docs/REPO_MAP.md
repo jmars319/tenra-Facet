@@ -9,7 +9,7 @@
 ## Central packages
 
 - `packages/shared-types`: Shared primitives such as ids, timestamps, URLs, and basic references.
-- `packages/domain`: Core tenra Facet concepts like search queries, results, provenance, reframing prompts, and safety disposition.
+- `packages/domain`: Core Facet by Tenra concepts like search queries, results, provenance, reframing prompts, and safety disposition.
 - `packages/api-contracts`: Request and response shapes for future server routes.
 - `packages/validation`: Zod schemas for selected shared and API objects.
 - `packages/search-providers`: Search provider interfaces and normalized result contracts.
@@ -32,5 +32,5 @@
 
 - `scripts/`: Root shell commands for bootstrap, environment checks, dev entry points, and verification.
 - `docs/`: Working documentation for developers and future contributors.
-- `docs/NEGATIVE_SPEC.md`: Guardrails for what tenra Facet should never turn into.
+- `docs/NEGATIVE_SPEC.md`: Guardrails for what Facet by Tenra should never turn into.
 - `archive/`: Reserved for retired assets or notes that should stay in repo history without cluttering the active tree.

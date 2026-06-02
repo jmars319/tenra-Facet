@@ -1,7 +1,7 @@
 [package]
 name = "facet-desktop"
 version = "0.1.0"
-description = "tenra Facet desktop shell"
+description = "Facet by Tenra desktop shell"
 edition = "2021"
 
 [build-dependencies]

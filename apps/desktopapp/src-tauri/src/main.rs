@@ -5,7 +5,7 @@ use tauri::{
     Manager, Runtime,
 };
 
-const APP_NAME: &str = "tenra Facet";
+const APP_NAME: &str = "Facet by Tenra";
 const MENU_SETTINGS: &str = "settings";
 const MENU_CLOSE_WINDOW: &str = "close-window";
 const MENU_QUIT: &str = "quit";
@@ -32,7 +32,7 @@ fn main() {
             }
         })
         .build(tauri::generate_context!())
-        .expect("error while building tenra Facet desktop shell");
+        .expect("error while building Facet by Tenra desktop shell");
 
     app.run(|app_handle, event| match event {
         #[cfg(target_os = "macos")]

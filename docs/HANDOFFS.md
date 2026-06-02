@@ -1,6 +1,6 @@
-# tenra Facet Handoffs
+# Facet by Tenra Handoffs
 
-tenra Facet stays unique as a shared orientation app. Its job is to help a person see a question from multiple angles without answering for them.
+Facet by Tenra stays unique as a shared orientation app. Its job is to help a person see a question from multiple angles without answering for them.
 
 ## Produces
 

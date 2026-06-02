@@ -1,6 +1,6 @@
-# tenra Facet
+# Facet by Tenra
 
-tenra Facet is a search and reframing workbench for turning open-ended questions into inspectable research paths. It emphasizes framing, source boundaries, and answer review rather than presenting search results or AI output as final truth.
+Facet by Tenra is a search and reframing workbench for turning open-ended questions into inspectable research paths. It emphasizes framing, source boundaries, and answer review rather than presenting search results or AI output as final truth.
 
 Facet is early-stage product infrastructure for research workflows inside the tenra ecosystem.
 
