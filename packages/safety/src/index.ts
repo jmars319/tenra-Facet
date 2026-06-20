@@ -2,8 +2,7 @@ import type { SafetyDisposition } from "@facet/domain";
 import type { FacetId } from "@facet/shared-types";
 
 /**
- * Future seam for policy and harm-minimizing behavior.
- * This scaffold only defines labels and contracts.
+ * Keep this package contract-only until policy behavior has explicit product and safety review.
  */
 export type SafetyLabel =
   | "general"

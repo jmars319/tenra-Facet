@@ -2,8 +2,7 @@ import type { SearchQuery } from "@facet/domain";
 import type { FacetId } from "@facet/shared-types";
 
 /**
- * Facet by Tenra organizes perspective so people can inspect a question from
- * multiple angles without the system deciding for them.
+ * Keep reframing focused on orientation so people can compare angles without the system choosing for them.
  */
 export type ReframingMode = "broaden" | "compare" | "distinguish" | "contextualize";
 
