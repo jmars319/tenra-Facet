@@ -9,6 +9,7 @@ type FacetSidebarProps = {
   state: FacetWorkbenchState;
 };
 
+// Workbench composition boundary
 export function FacetSidebar({ scenarios, state }: FacetSidebarProps) {
   return (
     <aside className="facet-sidebar">
@@ -28,6 +29,7 @@ export function FacetSidebar({ scenarios, state }: FacetSidebarProps) {
   );
 }
 
+// Question control boundary
 function FacetQueryPanel({ state }: { state: FacetWorkbenchState }) {
   const { importInputRef, isRunning, notice } = state;
   const { locale, queryText, runSearch, setLocale, setQueryText } = state.query;
@@ -71,6 +73,7 @@ function FacetQueryPanel({ state }: { state: FacetWorkbenchState }) {
   );
 }
 
+// Suite transfer boundary
 function FacetHandoffPanel({ state }: { state: FacetWorkbenchState }) {
   const { handoffJson, importedHandoff, importOrientationPacket, setHandoffJson } = state.handoff;
 
@@ -94,6 +97,7 @@ function FacetHandoffPanel({ state }: { state: FacetWorkbenchState }) {
   );
 }
 
+// Endpoint delivery boundary
 function FacetEndpointPanel({ state }: { state: FacetWorkbenchState }) {
   const endpoint = state.endpoint;
 
@@ -147,6 +151,7 @@ function FacetRetryQueue({ state }: { state: FacetWorkbenchState }) {
   );
 }
 
+// Corpus curation boundary
 function FacetScenarioPanel({ scenarios, state }: FacetSidebarProps) {
   return (
     <section className="scenario-panel" aria-label="Example scenarios">
@@ -217,6 +222,7 @@ function FacetCorpusPanel({ state }: { state: FacetWorkbenchState }) {
   );
 }
 
+// History navigation boundary
 function FacetHistoryPanel({ state }: { state: FacetWorkbenchState }) {
   const { activeId, savedRuns, setActiveId } = state.history;
 

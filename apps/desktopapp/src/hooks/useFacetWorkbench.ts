@@ -58,6 +58,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
   const [isRunning, setIsRunning] = useState(false);
   const [isStoreReady, setIsStoreReady] = useState(false);
 
+  // Desktop persistence boundary
   useEffect(() => {
     let cancelled = false;
 
@@ -113,6 +114,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     };
   }, []);
 
+  // Persistent write boundary
   useEffect(() => {
     if (!isStoreReady) return;
     void writeDesktopStore(runStorageKey, savedRuns).catch((error: unknown) => {
@@ -141,6 +143,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     });
   }, [isStoreReady, sendRetryQueue]);
 
+  // Orientation payload boundary
   const activeRun = savedRuns.find((run) => run.id === activeId) ?? savedRuns[0] ?? null;
   const markdown = useMemo(() => (activeRun ? toMarkdown(activeRun) : ""), [activeRun]);
   const derivePromptMarkdown = useMemo(() => (activeRun ? toDerivePromptMarkdown(activeRun) : ""), [activeRun]);
@@ -155,6 +158,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     [activeRun],
   );
 
+  // Local review boundary
   const runSearch = async () => {
     if (!queryText.trim()) {
       setNotice("Enter a question before running Facet.");
@@ -186,6 +190,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     setDocumentDraft((current) => ({ ...current, [field]: value }));
   };
 
+  // Corpus curation boundary
   const saveCorpusDocument = () => {
     const title = documentDraft.title.trim();
     const body = documentDraft.body.trim();
@@ -220,6 +225,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     setNotice("Local document removed.");
   };
 
+  // Suite transfer boundary
   const copyMarkdown = async () => {
     if (!activeRun) return;
     try {
@@ -260,6 +266,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     setNotice(`Orientation packet exported for ${recommendedNextApp}.`);
   };
 
+  // Endpoint delivery boundary
   const updateEndpoint = (target: FacetEndpointTarget, value: string) => {
     setEndpointConfig((current) => ({ ...current, [target]: value }));
   };
@@ -350,6 +357,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     if (selectedRetryPayload?.id === id) setSelectedRetryPayload(null);
   };
 
+  // Workspace portability boundary
   const exportWorkspace = () => {
     const payload: FacetDesktopExport = {
       exportedAt: nowIso(),
@@ -377,6 +385,7 @@ export const useFacetWorkbench = (initialQuery: string) => {
     }
   };
 
+  // Handoff inbox boundary
   const importOrientationPacket = () => {
     if (!handoffJson.trim()) {
       setNotice("Paste a Facet orientation packet before importing.");
@@ -430,4 +439,3 @@ export const useFacetWorkbench = (initialQuery: string) => {
 };
 
 export type FacetWorkbenchState = ReturnType<typeof useFacetWorkbench>;
-
